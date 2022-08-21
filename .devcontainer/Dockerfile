@@ -13,3 +13,5 @@ ENV CLOUDSDK_INSTALL_DIR /usr/local/gcloud/
 RUN curl -sSL https://sdk.cloud.google.com | bash
 
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
+RUN sh -c "$(curl --location https://raw.githubusercontent.com/go-task/task/v3.14.1/install-task.sh)" -- -d -b /usr/local/bin/
+RUN curl https://stedolan.github.io/jq/download/linux64/jq > /usr/local/bin/jq && sudo chmod +x /usr/local/bin/jq
