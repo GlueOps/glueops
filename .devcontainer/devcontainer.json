@@ -42,5 +42,14 @@
 		"python": "3.10.4",
 		"golang": "1.19",
 		"powershell": "latest"
-	}
+	},
+	"customizations": {
+		"codespaces": {
+		  "repositories": {
+			"GlueOps/*": {
+				"permissions": "write-all"
+			}
+		  }
+		}
+	  }
 }
