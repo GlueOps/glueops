@@ -11,22 +11,38 @@ env:
         sh: gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]' ##gcloud auth: https://stackoverflow.com/questions/53306131/difference-between-gcloud-auth-application-default-login-and-gcloud-auth-logi
 
 tasks:
+
+  default:
+    desc: Shows a list of all tasks
+    cmds:
+      - task -a
+
   auth:
     desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
     cmds:
       - gcloud init --console-only
       - gcloud auth application-default login --no-launch-browser
 
+  testing:
+    cmds:
+      - echo {{.TEST_VAR}}
+
   gke_up:
     desc: Brings up GKE Cluster
     cmds:
+      - date >> run.txt
       - terraform init
-      - terraform apply --auto-approve
+      - terraform apply --auto-approve -target=module.organization_and_project_bootstrap
+      - terraform apply --auto-approve -target=module.vpc 
+      - terraform apply --auto-approve -target=module.gke
+      - terraform apply
+      - date >> run.txt
 
   
   gke_destroy:
     desc: Destroys GKE Cluster
     cmds:
+      - date >> run.txt
       - terraform init
       - terraform destroy --auto-approve
-
+      - date >> run.txt

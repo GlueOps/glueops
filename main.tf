@@ -4,7 +4,7 @@ locals {
   org_id                   = var.GCP_ORGANIZATION_ID
   company_key              = "venkat"
   gcp_billing_account_name = "My Billing Account"
-  environment              = "test109"
+  environment              = "test114"
 
   admins = [
     "user:venkata@venkatamutyala.com",
@@ -66,14 +66,16 @@ module "vpc" {
 }
 
 
-# module "gke" {
-#   source = "git::https://github.com/GlueOps/terraform-gcp-gke-module.git"
+module "gke" {
+  source = "git::https://github.com/GlueOps/terraform-gcp-gke-module.git"
 
-#   workspace     = local.environment
-#   region        = "us-central1"
-#   gcp_folder_id = local.gcp_folder_id
+  workspace                  = local.environment
+  region                     = "us-central1"
+  gcp_folder_id              = local.gcp_folder_id
+  run_masters_in_single_zone = true
+  spot_instances             = true
 
-#     depends_on = [
-#     module.vpc
-#   ]
-# }
+  depends_on = [
+    module.vpc
+  ]
+}
