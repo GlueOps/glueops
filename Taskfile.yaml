@@ -6,8 +6,8 @@ vars:
 env:
   TF_VAR_GCP_ORGANIZATION_ID: 
         sh: gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]' ##gcloud auth: https://stackoverflow.com/questions/53306131/difference-between-gcloud-auth-application-default-login-and-gcloud-auth-logi
-  TF_VAR_COMPANY_KEY: "venkat"
-  TF_VAR_TEST_NUMBER: 2
+  TF_VAR_COMPANY_KEY: "venkata"
+  TF_VAR_TEST_NUMBER: 3
   SVC_LB_PATCH:
     sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
 
@@ -46,6 +46,7 @@ tasks:
       - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-orchestrator-{{.TF_VAR_TEST_NUMBER}} || true
       - gcloud resource-manager folders update {{.FOLDER_ID}} --display-name=`date +%s`"-DELETED" || true
       - rm -rf *terraform*
+      - rm -rf .terraform*
 
   gke_bootstrap_argocd:
     cmds:
