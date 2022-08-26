@@ -1,7 +1,4 @@
 # https://taskfile.dev
-
-
-
 version: '3'
 
 vars:
@@ -9,9 +6,12 @@ vars:
 env:
   TF_VAR_GCP_ORGANIZATION_ID: 
         sh: gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]' ##gcloud auth: https://stackoverflow.com/questions/53306131/difference-between-gcloud-auth-application-default-login-and-gcloud-auth-logi
+  TF_VAR_COMPANY_KEY: "venkat"
+  TF_VAR_TEST_NUMBER: 1
+  SVC_LB_PATCH:
+    sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
 
 tasks:
-
   default:
     desc: Shows a list of all tasks
     cmds:
@@ -20,12 +20,8 @@ tasks:
   auth:
     desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
     cmds:
-      - gcloud init --console-only
       - gcloud auth application-default login --no-launch-browser
-
-  testing:
-    cmds:
-      - echo {{.TEST_VAR}}
+      - gcloud init --console-only
 
   gke_up:
     desc: Brings up GKE Cluster
@@ -38,11 +34,42 @@ tasks:
       - terraform apply
       - date >> run.txt
 
-  
-  gke_destroy:
-    desc: Destroys GKE Cluster
+  destroy:
+    desc: Shutdown GCP Projects that contain the GKE clusters.
     cmds:
-      - date >> run.txt
-      - terraform init
-      - terraform destroy --auto-approve
-      - date >> run.txt
+      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}} --quiet || true
+      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-orchestrator-{{.TF_VAR_TEST_NUMBER}} --quiet || true
+      - rm -rf *terraform*
+
+  gke_bootstrap_argocd:
+    cmds:
+      - rm -rf ~/.kube/
+      - gcloud container clusters get-credentials orchestrator-1-gke --zone us-central1-a --project venkat-orchestrator-1
+      - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
+      - gcloud container clusters get-credentials apps-1-gke --zone us-central1-a --project venkat-apps-1
+      - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps
+      - kubectl config set-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
+      - kubectl create namespace argocd || true
+      - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.11/manifests/install.yaml
+      - kubectl wait pods --all -n argocd --for condition=Ready --timeout=120s
+      - kubectl patch svc argocd-server -n argocd -p {{shellQuote .SVC_LB_PATCH}}
+      - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
+      - argocd cluster add {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps --grpc-web --yes
+      - echo 'Orchestrator Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") && echo 'User:' 'Admin' && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+
+       
+
+
+
+  # testing:
+  #   cmds:
+  #     - echo {{shellQuote .SVC_LB_PATCH}}
+  #     #'{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
+
+  # gke_destroy:
+  #   desc: Destroys GKE Cluster
+  #   cmds:
+  #     - date >> run.txt
+  #     - terraform init
+  #     - terraform destroy --auto-approve
+  #     - date >> run.txt

@@ -1,10 +1,13 @@
 variable "GCP_ORGANIZATION_ID" {}
+variable "COMPANY_KEY" {}
+variable "TEST_NUMBER" {}
+
 
 locals {
   org_id                   = var.GCP_ORGANIZATION_ID
-  company_key              = "venkat"
+  company_key              = var.COMPANY_KEY
   gcp_billing_account_name = "My Billing Account"
-  environment              = "test114"
+  environments             = toset(["orchestrator-${var.TEST_NUMBER}", "apps-${var.TEST_NUMBER}"])
 
   admins = [
     "user:venkata@venkatamutyala.com",
@@ -34,7 +37,7 @@ module "organization_and_project_bootstrap" {
   admins                   = local.admins
   admin_roles              = local.admin_roles
   gcp_billing_account_name = local.gcp_billing_account_name
-  environments             = [local.environment]
+  environments             = local.environments
 }
 
 
@@ -52,9 +55,9 @@ locals {
 }
 
 module "vpc" {
-  source = "git::https://github.com/GlueOps/terraform-gcp-vpc-module.git?ref=feat/optional-vpc-connector"
-
-  workspace = local.environment
+  source    = "git::https://github.com/GlueOps/terraform-gcp-vpc-module.git"
+  for_each  = local.environments
+  workspace = each.key
   region    = "us-central1"
 
   network_prefixes                   = local.network_prefixes
@@ -67,9 +70,9 @@ module "vpc" {
 
 
 module "gke" {
-  source = "git::https://github.com/GlueOps/terraform-gcp-gke-module.git"
-
-  workspace                  = local.environment
+  source                     = "git::https://github.com/GlueOps/terraform-gcp-gke-module.git"
+  for_each                   = local.environments
+  workspace                  = each.key
   region                     = "us-central1"
   gcp_folder_id              = local.gcp_folder_id
   run_masters_in_single_zone = true
@@ -79,3 +82,4 @@ module "gke" {
     module.vpc
   ]
 }
+
