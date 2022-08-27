@@ -47,13 +47,14 @@ tasks:
       - gcloud resource-manager folders update {{.FOLDER_ID}} --display-name=`date +%s`"-DELETED" || true
       - rm -rf *terraform*
       - rm -rf .terraform*
+      - rm -rf ~/.kube/
 
   gke_bootstrap_argocd:
     cmds:
       - rm -rf ~/.kube/
-      - gcloud container clusters get-credentials orchestrator-1-gke --zone us-central1-a --project venkat-orchestrator-1
+      - gcloud container clusters get-credentials orchestrator-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-orchestrator-{{.TF_VAR_TEST_NUMBER}}
       - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
-      - gcloud container clusters get-credentials apps-1-gke --zone us-central1-a --project venkat-apps-1
+      - gcloud container clusters get-credentials apps-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}}
       - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps
       - kubectl config set-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
       - kubectl create namespace argocd || true
