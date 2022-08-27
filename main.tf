@@ -10,7 +10,7 @@ locals {
   environments             = toset(["orchestrator-${var.TEST_NUMBER}", "apps-${var.TEST_NUMBER}"])
 
   admins = [
-    "user:venkata@venkatamutyala.com",
+    "group:dev-only-users@glueops.dev",
   ]
 
   # ref: https://cloud.google.com/iam/docs/understanding-roles
