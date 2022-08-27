@@ -64,7 +64,7 @@ tasks:
       - kubectl patch svc argocd-server -n argocd -p {{shellQuote .SVC_LB_PATCH}}
       - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
       - argocd cluster add {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps --grpc-web --yes
-      - echo 'Orchestrator Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") && echo 'User:' 'Admin' && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+      - echo 'Orchestrator Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") && echo 'User:' 'admin' && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 
        
 
