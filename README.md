@@ -13,9 +13,10 @@ Notes:
 - All projects above will be under the glueops.rocks gcp organization. It's a pure dev org so don't expect to not lose any work.
 - ALso sure you don't let your codespaces go idle. I recommend increasing your codespace timeout and running this all inside of tmux. Otherwise expect to monitor the gke_up for at least 15-25mins.
 
-#### First authenticate TWICE. Note: you do not need to create a project, you just need to auth and then you can cancel out or say no to creating a project.
+#### First authenticate TWICE. 
 
 `task auth`
+- Note: you do not need to create a project, you just need to auth and then you can cancel out or say no to creating a project.
 
 #### Bring up new clusters in gke:
 
