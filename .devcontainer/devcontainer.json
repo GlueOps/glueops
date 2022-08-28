@@ -4,7 +4,7 @@
 	"name": "Ubuntu",
 	"image": "glueops/codespaces:latest",
 	"runArgs": ["--init", "--privileged"],
-	"overrideCommand": false		
+	"overrideCommand": false,		
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {},
