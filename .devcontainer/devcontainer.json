@@ -2,9 +2,7 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.233.0/containers/ubuntu
 {
 	"name": "Ubuntu",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
+	"image": "glueops/codespaces:latest",
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {},
