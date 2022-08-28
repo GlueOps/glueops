@@ -80,18 +80,8 @@ tasks:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps
       - echo 'Apps Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
 
-
-
-
-  # testing:
-  #   cmds:
-  #     - echo {{shellQuote .SVC_LB_PATCH}}
-  #     #'{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
-
-  # gke_destroy:
-  #   desc: Destroys GKE Cluster
-  #   cmds:
-  #     - date >> run.txt
-  #     - terraform init
-  #     - terraform destroy --auto-approve
-  #     - date >> run.txt
+  gke_bootstrap_apps_cluster:
+    desc: Using the ORCHESTRATOR, install an argo app to bootstrap the apps cluster
+    cmds:
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
+      - kubectl apply -f application-apps.yaml -n argocd
