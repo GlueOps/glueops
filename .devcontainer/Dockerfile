@@ -1,0 +1,1 @@
+FROM glueops/codespaces:v0.1.0
