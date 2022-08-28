@@ -55,8 +55,12 @@ tasks:
       - rm -rf ~/.kube/
       - gcloud container clusters get-credentials orchestrator-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-orchestrator-{{.TF_VAR_TEST_NUMBER}}
       - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
+      - mv ~/.kube/config ~/.kube/orchestrator
       - gcloud container clusters get-credentials apps-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}}
       - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps
+      - mv ~/.kube/config ~/.kube/apps
+      - KUBECONFIG={{.HOME}}/.kube/orchestrator:{{.HOME}}/.kube/apps kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
+      - rm ~/.kube/orchestrator ~/.kube/apps
       - kubectl config set-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
       - kubectl create namespace argocd || true
       - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.11/manifests/install.yaml
@@ -65,10 +69,6 @@ tasks:
       - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
       - argocd cluster add {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps --grpc-web --yes
       - echo 'Orchestrator Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") && echo 'User:' 'admin' && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-
-       
-
-
 
   # testing:
   #   cmds:
