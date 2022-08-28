@@ -103,11 +103,6 @@ dist
 # TernJS port file
 .tern-port
 
-
-GlueOps/
-run.txt
-
-
 # Local .terraform directories
 **/.terraform/*
 
@@ -146,3 +141,11 @@ terraform.rc
 
 # removing locak file
 .terraform.lock.hcl
+
+
+
+#GlueOps misc files and directories
+
+GlueOps/
+run.txt
+credentials.txt
