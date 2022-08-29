@@ -23,6 +23,7 @@ locals {
     "roles/orgpolicy.policyAdmin",
     "roles/servicemanagement.quotaAdmin",
     "roles/resourcemanager.projectCreator", #added
+    "roles/billing.admin", #added
   ]
 
 
