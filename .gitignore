@@ -149,3 +149,4 @@ terraform.rc
 GlueOps/
 run.txt
 credentials.txt
+application-apps.yaml
