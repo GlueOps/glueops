@@ -6,8 +6,8 @@ vars:
 env:
   TF_VAR_GCP_ORGANIZATION_ID: 
         sh: gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]' ##gcloud auth: https://stackoverflow.com/questions/53306131/difference-between-gcloud-auth-application-default-login-and-gcloud-auth-logi
-  TF_VAR_COMPANY_KEY: "venkata"
-  TF_VAR_TEST_NUMBER: 9
+  TF_VAR_COMPANY_KEY: "dev_name"
+  TF_VAR_TEST_NUMBER: 0
   SVC_LB_PATCH:
     sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
 
