@@ -18,6 +18,11 @@ Notes:
 `task auth`
 - Note: you do not need to create a project, you just need to auth and then you can cancel out or say no to creating a project.
 
+#### Create all your configs.
+
+- Update .env with the correct secrets.
+- Run `task configs`
+
 #### Bring up new clusters in gke:
 
 `task gke_up`
@@ -30,10 +35,8 @@ Notes:
 
 `task gke_bootstrap_apps_cluster`
 
-- Note: `gke_bootstrap_apps_cluster` requires an `application-apps.yaml` to be on disk with all the proper configs.
-
 #### Get logins for argocd deployments:
-`get_argocd_logins`
+`task get_argocd_logins`
 
 #### Cleanup:
 `task clean`

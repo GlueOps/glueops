@@ -18,11 +18,18 @@ tasks:
     desc: Shows a list of all tasks
     cmds:
       - task -a
+      
   auth:
     desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
     cmds:
       - gcloud auth application-default login --no-launch-browser
       - gcloud init --console-only
+
+
+  configs:
+    desc: Generate configs
+    cmds:
+      - source .env && envsubst < application-definition-for-apps-cluster.yaml.tpl > application-definition-for-apps-cluster.yaml
 
   gke_up:
     desc: Brings up GKE Cluster
@@ -85,4 +92,4 @@ tasks:
     desc: Using the ORCHESTRATOR, install an argo app to bootstrap the apps cluster
     cmds:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
-      - kubectl apply -f application-apps.yaml -n argocd
+      - kubectl apply -f application-definition-for-apps-cluster.yaml -n argocd

@@ -13,6 +13,13 @@ spec:
     targetRevision: HEAD
     helm:
       parameters:
+        - name: argo-cd.glueops.app_cluster_name
+          value: $APPS_CLUSTER_NAME
+        - name: argo-cd.glueops.github_client_id
+          value: $GITHUB_CLIENT_ID
+        - name: argo-cd.glueops.github_client_secret
+          value: $GITHUB_CLIENT_SECRET
+                                                            
         - name: certManager.cloudflare_api_token
           value: $CLOUDFLARE_API_TOKEN
         - name: externalDns.cloudflare_api_token
