@@ -20,7 +20,7 @@ Notes:
 
 #### Create all your configs.
 
-- Update .env with the correct secrets.
+- Copy `.env.tpl` to create an `.env` file with the correct secrets.
 - Run `task configs`
 
 #### Bring up new clusters in gke:
