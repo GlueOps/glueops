@@ -27,7 +27,7 @@ Notes:
 
 `task gke_up`
 
-#### Bootstrap orchestrator cluster:
+#### Bootstrap admiral cluster:
 
 `task gke_bootstrap_argocd`
 
