@@ -31,6 +31,10 @@ spec:
         - name: gitHub.k8sBootstrapRepo
           value: aHR0cHM6Ly9naXRodWIuY29tL0dsdWVPcHMvcGxhdGZvcm0uZ2l0
       values: |-
+        grafana:
+          root_url: "https://grafana.gcp.glueops.rocks"
+          github_client_id: $GITHUB_CLIENT_ID
+          github_client_secret: $GITHUB_CLIENT_SECRET
         argo-cd:
           server:
             config:
