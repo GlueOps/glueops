@@ -1,7 +1,7 @@
 # Note you should only source this .env file once as the CREATION_DATE will change! Alternatively, you can hardcode it.
 
 export COMPANY_KEY="<developer-name>"
-export CREATION_DATE=`date '+%Y%m%d%H%M'`
+export CREATION_DATE=`date '+%d%H%M'`
 export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
 
 #https://dash.cloudflare.com/profile/api-tokens
