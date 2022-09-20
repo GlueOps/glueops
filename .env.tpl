@@ -12,5 +12,8 @@ export ZEROSSL_EAB_KID="<replace-with-your-kid>"
 export ZEROSSL_EAB_HMAC_KEY="<replace-with-your-hmac-key>"
 
 #https://github.com/organizations/GlueOps/settings/applications/
-export GITHUB_CLIENT_ID="<replace-with-your-client-id>"
-export GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
+export ARGO_CD_GITHUB_CLIENT_ID="<replace-with-your-client-id>"
+export ARGO_CD_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
+
+export GRAFANA_GITHUB_CLIENT_ID="<replace-with-your-client-id>"
+export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"

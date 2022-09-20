@@ -15,10 +15,6 @@ spec:
       parameters:
         - name: argo-cd.glueops.app_cluster_name
           value: $APPS_CLUSTER_NAME
-        - name: argo-cd.glueops.github_client_id
-          value: $GITHUB_CLIENT_ID
-        - name: argo-cd.glueops.github_client_secret
-          value: $GITHUB_CLIENT_SECRET                                            
         - name: certManager.cloudflare_api_token
           value: $CLOUDFLARE_API_TOKEN
         - name: externalDns.cloudflare_api_token
@@ -33,8 +29,8 @@ spec:
       values: |-
         grafana:
           root_url: "https://grafana.gcp.glueops.rocks"
-          github_client_id: $GITHUB_CLIENT_ID
-          github_client_secret: $GITHUB_CLIENT_SECRET
+          github_client_id: $GRAFANA_GITHUB_CLIENT_ID
+          github_client_secret: $GRAFANA_GITHUB_CLIENT_SECRET
         argo-cd:
           server:
             config:
@@ -46,8 +42,8 @@ spec:
                     id: github
                     name: GitHub
                     config:
-                      clientID: $GITHUB_CLIENT_ID
-                      clientSecret: $GITHUB_CLIENT_SECRET
+                      clientID: $ARGO_CD_GITHUB_CLIENT_ID
+                      clientSecret: $ARGO_CD_GITHUB_CLIENT_SECRET
                       orgs:
                       - name: GlueOps
                         teams:
