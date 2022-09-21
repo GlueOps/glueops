@@ -3,6 +3,7 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 4.0"
+      configuration_aliases = [ aws.management_account ]
     }
   }
 }
@@ -14,6 +15,7 @@ variable "MANAGEMENT_AWS_ACCESS_KEY_ID" {}
 variable "MANAGEMENT_AWS_ACCESS_SECRET_KEY" {}
 
 provider "aws" {
+    alias = "management_account"
     region     = "us-west-2"
     access_key = var.MANAGEMENT_AWS_ACCESS_KEY_ID
     secret_key = var.MANAGEMENT_AWS_ACCESS_SECRET_KEY
@@ -23,7 +25,6 @@ provider "aws" {
 ## export AWS_ACCESS_KEY_ID=""
 ## export AWS_SECRET_ACCESS_KEY=""
 provider "aws" {
-  alias  = "nonprod"
   assume_role {
     role_arn     = "arn:aws:iam::041618144804:role/OrganizationAccountAccessRole"
   }
@@ -43,6 +44,7 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_organizations_account" "account" {
   name  = "rocks_nonprod"
+  provider = aws.management_account
   email = "rocks+202209213@glueops.dev" #${formatdate("YYYYMMDD", timestamp())}
   close_on_deletion = true
   role_name = module.organization_access_role.role_name
@@ -50,8 +52,95 @@ resource "aws_organizations_account" "account" {
 
 module "organization_access_role" {
   source            = "git::https://github.com/maxgio92/terraform-aws-organization-access-role.git?ref=feature/012-upgrade"
+  providers = {
+    aws.management_account = aws.management_account
+  }
   master_account_id = data.aws_caller_identity.current.account_id
   role_name         = "OrganizationAccountAccessRole"
   policy_arn        = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
 
+#=== CloudPosse EKS
+
+
+  module "label" {
+    source = "cloudposse/label/null"
+    # Cloud Posse recommends pinning every module to a specific version
+    # version  = "x.x.x"
+
+    namespace  = "test-nonprod"
+    name       = "test-name"
+    stage      = "test-stage"
+    delimiter  = "-"
+    attributes = ["cluster"]
+    tags       = {"tag": "test-tag"}
+  }
+
+  locals {
+    # Prior to Kubernetes 1.19, the usage of the specific kubernetes.io/cluster/* resource tags below are required
+    # for EKS and Kubernetes to discover and manage networking resources
+    # https://www.terraform.io/docs/providers/aws/guides/eks-getting-started.html#base-vpc-networking
+    tags = { "kubernetes.io/cluster/${module.label.id}" = "shared" }
+  }
+
+#   module "vpc" {
+#     source = "cloudposse/vpc/aws"
+#     provider = aws.nonprod
+#     # Cloud Posse recommends pinning every module to a specific version
+#     # version     = "x.x.x"
+#     cidr_block = "172.16.0.0/16"
+
+#     tags    = local.tags
+#     context = module.label.context
+#   }
+
+#   module "subnets" {
+#     source = "cloudposse/dynamic-subnets/aws"
+#     # Cloud Posse recommends pinning every module to a specific version
+#     # version     = "x.x.x"
+
+#     availability_zones   = var.availability_zones
+#     vpc_id               = module.vpc.vpc_id
+#     igw_id               = module.vpc.igw_id
+#     cidr_block           = module.vpc.vpc_cidr_block
+#     nat_gateway_enabled  = true
+#     nat_instance_enabled = false
+
+#     tags    = local.tags
+#     context = module.label.context
+#   }
+
+#   module "eks_node_group" {
+#     source = "cloudposse/eks-node-group/aws"
+#     # Cloud Posse recommends pinning every module to a specific version
+#     # version     = "x.x.x"
+
+#     instance_types                     = [var.instance_type]
+#     subnet_ids                         = module.subnets.public_subnet_ids
+#     health_check_type                  = var.health_check_type
+#     min_size                           = var.min_size
+#     max_size                           = var.max_size
+#     cluster_name                       = module.eks_cluster.eks_cluster_id
+
+#     # Enable the Kubernetes cluster auto-scaler to find the auto-scaling group
+#     cluster_autoscaler_enabled = var.autoscaling_policies_enabled
+
+#     context = module.label.context
+
+#     # Ensure the cluster is fully created before trying to add the node group
+#     module_depends_on = module.eks_cluster.kubernetes_config_map_id
+#   }
+
+#   module "eks_cluster" {
+#     source = "cloudposse/eks-cluster/aws"
+#     # Cloud Posse recommends pinning every module to a specific version
+#     # version = "x.x.x"
+
+#     vpc_id     = module.vpc.vpc_id
+#     subnet_ids = module.subnets.public_subnet_ids
+
+#     kubernetes_version    = var.kubernetes_version
+#     oidc_provider_enabled = true
+
+#     context = module.label.context
+#   }
