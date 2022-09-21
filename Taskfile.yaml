@@ -1,13 +1,18 @@
 # https://taskfile.dev
 version: '3'
 
+
 vars:
   GREETING: Hello, World!
 env:
   TF_VAR_GCP_ORGANIZATION_ID: 
-        sh: gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]' ##gcloud auth: https://stackoverflow.com/questions/53306131/difference-between-gcloud-auth-application-default-login-and-gcloud-auth-logi
-  TF_VAR_COMPANY_KEY: "dev_name"
-  TF_VAR_TEST_NUMBER: 0
+    sh: gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]' ##gcloud auth: https://stackoverflow.com/questions/53306131/difference-between-gcloud-auth-application-default-login-and-gcloud-auth-logi
+  TF_VAR_COMPANY_KEY: 
+    sh: echo -n $COMPANY_KEY
+  TF_VAR_TEST_NUMBER: 
+    sh: echo -n $CREATION_DATE
+  APPS_CLUSTER_NAME: 
+    sh: echo -n $APPS_CLUSTER_NAME
   SVC_LB_PATCH:
     sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
 
@@ -17,11 +22,21 @@ tasks:
     cmds:
       - task -a
 
+  test:
+    cmds:
+      - echo {{.APPS_CLUSTER_NAME}}
+
   auth:
     desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
     cmds:
       - gcloud auth application-default login --no-launch-browser
       - gcloud init --console-only
+
+
+  configs:
+    desc: Generate configs
+    cmds:
+      - envsubst < application-definition-for-apps-cluster.yaml.tpl > application-definition-for-apps-cluster.yaml
 
   gke_up:
     desc: Brings up GKE Cluster
@@ -41,9 +56,9 @@ tasks:
         sh: gcloud resource-manager folders list --organization=`gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]'` --filter="{{.TF_VAR_COMPANY_KEY}} Core" --format=json | jq -r '.[0].name | split("/") | .[1]' || true
     cmds:
       - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}} --quiet || true
-      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-orchestrator-{{.TF_VAR_TEST_NUMBER}} --quiet || true
+      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} --quiet || true
       - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}} || true
-      - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-orchestrator-{{.TF_VAR_TEST_NUMBER}} || true
+      - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} || true
       - gcloud resource-manager folders update {{.FOLDER_ID}} --display-name=`date +%s`"-DELETED" || true
       - rm -rf *terraform*
       - rm -rf .terraform*
@@ -51,37 +66,37 @@ tasks:
       - rm -rf credentials.txt
 
   gke_bootstrap_argocd:
-    desc: install argocd on orchestrator cluster
+    desc: install argocd on admiral cluster
     cmds:
       - rm -rf ~/.kube/
-      - gcloud container clusters get-credentials orchestrator-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-orchestrator-{{.TF_VAR_TEST_NUMBER}}
-      - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
-      - mv ~/.kube/config ~/.kube/orchestrator
+      - gcloud container clusters get-credentials admiral-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}}
+      - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+      - mv ~/.kube/config ~/.kube/admiral
       - gcloud container clusters get-credentials apps-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}}
-      - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps
+      - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.APPS_CLUSTER_NAME}}
       - mv ~/.kube/config ~/.kube/apps
-      - KUBECONFIG={{.HOME}}/.kube/orchestrator:{{.HOME}}/.kube/apps kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
-      - rm ~/.kube/orchestrator ~/.kube/apps
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
+      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/apps kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
+      - rm ~/.kube/admiral ~/.kube/apps
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
       - kubectl create namespace argocd || true
       - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.11/manifests/install.yaml
       - kubectl wait pods --all -n argocd --for condition=Ready --timeout=120s
       - kubectl patch svc argocd-server -n argocd -p {{shellQuote .SVC_LB_PATCH}}
       - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
-      - argocd cluster add {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps --grpc-web --yes
-      - kubectl apply -f orchestrator-argocd-health-check.yaml -n argocd
+      - argocd cluster add {{.APPS_CLUSTER_NAME}} --grpc-web --yes
+      - kubectl apply -f admiral-argocd-health-check.yaml -n argocd
 
   get_argocd_logins:
     desc: get logins for argocd
     cmds:
       - rm -rf credentials.txt
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
-      - echo 'Orchestrator Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+      - echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
+      - kubectl config use-context {{.APPS_CLUSTER_NAME}}
       - echo 'Apps Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
 
   gke_bootstrap_apps_cluster:
-    desc: Using the ORCHESTRATOR, install an argo app to bootstrap the apps cluster
+    desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
     cmds:
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-orchestrator
-      - kubectl apply -f application-apps.yaml -n argocd
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+      - kubectl apply -f application-definition-for-apps-cluster.yaml -n argocd

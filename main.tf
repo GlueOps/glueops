@@ -7,7 +7,7 @@ locals {
   org_id                   = var.GCP_ORGANIZATION_ID
   company_key              = var.COMPANY_KEY
   gcp_billing_account_name = "My Billing Account"
-  environments             = toset(["orchestrator-${var.TEST_NUMBER}", "apps-${var.TEST_NUMBER}"])
+  environments             = toset(["admiral-${var.TEST_NUMBER}", "apps-${var.TEST_NUMBER}"])
 
   admins = [
     "group:dev-only-users@glueops.dev",
@@ -23,7 +23,7 @@ locals {
     "roles/orgpolicy.policyAdmin",
     "roles/servicemanagement.quotaAdmin",
     "roles/resourcemanager.projectCreator", #added
-    "roles/billing.admin", #added
+    "roles/billing.admin",                  #added
   ]
 
 
