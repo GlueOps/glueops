@@ -15,7 +15,7 @@ Notes:
 
 #### First authenticate TWICE. 
 
-`task auth`
+`task gcp_auth`
 - Note: you do not need to create a project, you just need to auth and then you can cancel out or say no to creating a project.
 
 #### Create all your configs.

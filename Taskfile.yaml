@@ -26,12 +26,16 @@ tasks:
     cmds:
       - echo {{.APPS_CLUSTER_NAME}}
 
-  auth:
+  gcp_auth:
     desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
     cmds:
       - gcloud auth application-default login --no-launch-browser
       - gcloud init --console-only
 
+  aws_auth:
+    desc: Assume application account role and sets environment variables
+    cmds:
+      - read ak sak st < <(echo $(aws sts assume-role --role-arn "arn:aws:iam::041618144804:role/OrganizationAccountAccessRole" --role-session-name k8s-test | jq -r '.Credentials | "\(.AccessKeyId) \(.SecretAccessKey) \(.SessionToken)"')) && export AWS_ACCESS_KEY_ID=$ak AWS_SECRET_ACCESS_KEY=$sak AWS_SESSION_TOKEN=$st
 
   configs:
     desc: Generate configs
