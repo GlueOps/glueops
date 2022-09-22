@@ -3,7 +3,6 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 4.0"
-      configuration_aliases = [ aws.management_account ]
     }
   }
 }
@@ -30,7 +29,9 @@ provider "aws" {
   }
 }
 
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+  provider = aws.management_account
+}
 
 
 # resource "aws_organizations_organization" "org" {
@@ -43,17 +44,17 @@ data "aws_caller_identity" "current" {}
 # }
 
 resource "aws_organizations_account" "account" {
-  name  = "rocks_nonprod"
   provider = aws.management_account
+  name  = "rocks_nonprod"
   email = "rocks+202209213@glueops.dev" #${formatdate("YYYYMMDD", timestamp())}
   close_on_deletion = true
   role_name = module.organization_access_role.role_name
 }
 
 module "organization_access_role" {
-  source            = "git::https://github.com/maxgio92/terraform-aws-organization-access-role.git?ref=feature/012-upgrade"
+  source            = "git::https://github.com/glueops/terraform-aws-organization-access-role.git?ref=master"
   providers = {
-    aws.management_account = aws.management_account
+    aws = aws.management_account
   }
   master_account_id = data.aws_caller_identity.current.account_id
   role_name         = "OrganizationAccountAccessRole"
@@ -83,64 +84,63 @@ module "organization_access_role" {
     tags = { "kubernetes.io/cluster/${module.label.id}" = "shared" }
   }
 
-#   module "vpc" {
-#     source = "cloudposse/vpc/aws"
-#     provider = aws.nonprod
-#     # Cloud Posse recommends pinning every module to a specific version
-#     # version     = "x.x.x"
-#     cidr_block = "172.16.0.0/16"
+  module "vpc" {
+    source = "cloudposse/vpc/aws"
+    # Cloud Posse recommends pinning every module to a specific version
+    # version     = "x.x.x"
+    cidr_block = "10.65.0.0/16"
 
-#     tags    = local.tags
-#     context = module.label.context
-#   }
+    tags    = local.tags
+    context = module.label.context
+  }
 
-#   module "subnets" {
-#     source = "cloudposse/dynamic-subnets/aws"
-#     # Cloud Posse recommends pinning every module to a specific version
-#     # version     = "x.x.x"
+  module "subnets" {
+    source = "cloudposse/dynamic-subnets/aws"
+    # Cloud Posse recommends pinning every module to a specific version
+    # version     = "x.x.x"
 
-#     availability_zones   = var.availability_zones
-#     vpc_id               = module.vpc.vpc_id
-#     igw_id               = module.vpc.igw_id
-#     cidr_block           = module.vpc.vpc_cidr_block
-#     nat_gateway_enabled  = true
-#     nat_instance_enabled = false
+    vpc_id               = module.vpc.vpc_id
+    igw_id               = [module.vpc.igw_id]
+    nat_gateway_enabled  = true
+    nat_instance_enabled = false
 
-#     tags    = local.tags
-#     context = module.label.context
-#   }
+    tags    = local.tags
+    context = module.label.context
+    availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  }
 
-#   module "eks_node_group" {
-#     source = "cloudposse/eks-node-group/aws"
-#     # Cloud Posse recommends pinning every module to a specific version
-#     # version     = "x.x.x"
+  module "eks_node_group" {
+    source = "cloudposse/eks-node-group/aws"
+    # Cloud Posse recommends pinning every module to a specific version
+    # version     = "x.x.x"
 
-#     instance_types                     = [var.instance_type]
-#     subnet_ids                         = module.subnets.public_subnet_ids
-#     health_check_type                  = var.health_check_type
-#     min_size                           = var.min_size
-#     max_size                           = var.max_size
-#     cluster_name                       = module.eks_cluster.eks_cluster_id
+    instance_types                     = ["t3a.xlarge"]
+    subnet_ids                         = module.subnets.public_subnet_ids
+    #health_check_type                  = var.health_check_type
+    desired_size                       = 3
+    min_size                           = 3
+    max_size                           = 4
+    cluster_name                       = module.eks_cluster.eks_cluster_id
 
-#     # Enable the Kubernetes cluster auto-scaler to find the auto-scaling group
-#     cluster_autoscaler_enabled = var.autoscaling_policies_enabled
+    # Enable the Kubernetes cluster auto-scaler to find the auto-scaling group
+    cluster_autoscaler_enabled = true
 
-#     context = module.label.context
+    context = module.label.context
 
-#     # Ensure the cluster is fully created before trying to add the node group
-#     module_depends_on = module.eks_cluster.kubernetes_config_map_id
-#   }
+    # Ensure the cluster is fully created before trying to add the node group
+    module_depends_on = module.eks_cluster.kubernetes_config_map_id
+  }
 
-#   module "eks_cluster" {
-#     source = "cloudposse/eks-cluster/aws"
-#     # Cloud Posse recommends pinning every module to a specific version
-#     # version = "x.x.x"
+  module "eks_cluster" {
+    source = "cloudposse/eks-cluster/aws"
+    # Cloud Posse recommends pinning every module to a specific version
+    # version = "x.x.x"
+    region = "us-west-2"
+    vpc_id     = module.vpc.vpc_id
+    subnet_ids = module.subnets.public_subnet_ids
 
-#     vpc_id     = module.vpc.vpc_id
-#     subnet_ids = module.subnets.public_subnet_ids
+    oidc_provider_enabled = true
 
-#     kubernetes_version    = var.kubernetes_version
-#     oidc_provider_enabled = true
-
-#     context = module.label.context
-#   }
+    context = module.label.context
+    kubernetes_version = "1.22"
+  }
