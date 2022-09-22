@@ -7,33 +7,30 @@ terraform {
   }
 }
 
-### Use your OWN aws account credentials here!
-## export TF_VAR_MANAGEMENT_AWS_ACCESS_KEY_ID=""
-## export TF_VAR_MANAGEMENT_AWS_ACCESS_SECRET_KEY=""
+
 variable "MANAGEMENT_AWS_ACCESS_KEY_ID" {}
-variable "MANAGEMENT_AWS_ACCESS_SECRET_KEY" {}
+variable "MANAGEMENT_AWS_SECRET_ACCESS_KEY" {}
+
 
 provider "aws" {
     alias = "management_account"
     region     = "us-west-2"
     access_key = var.MANAGEMENT_AWS_ACCESS_KEY_ID
-    secret_key = var.MANAGEMENT_AWS_ACCESS_SECRET_KEY
+    secret_key = var.MANAGEMENT_AWS_SECRET_ACCESS_KEY
 }
 
-### use the terraform-svc account 
-## export AWS_ACCESS_KEY_ID=""
-## export AWS_SECRET_ACCESS_KEY=""
 provider "aws" {
   assume_role {
     role_arn     = "arn:aws:iam::041618144804:role/OrganizationAccountAccessRole"
   }
 }
 
+
 data "aws_caller_identity" "current" {
   provider = aws.management_account
 }
 
-
+## Commented out to prevent redeployment of the organization, and it can't be destroyed due to SUSPENDED accounts
 # resource "aws_organizations_organization" "org" {
 #   aws_service_access_principals = [
 #     "cloudtrail.amazonaws.com",

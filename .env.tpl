@@ -29,3 +29,14 @@ export ARGO_CD_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
 
 export GRAFANA_GITHUB_CLIENT_ID="<replace-with-your-client-id>"
 export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
+
+
+
+### AWS
+### Use your OWN aws account credentials here!
+export TF_VAR_MANAGEMENT_AWS_ACCESS_KEY_ID=""
+export TF_VAR_MANAGEMENT_AWS_SECRET_ACCESS_KEY=""
+
+### use the terraform-svc account 
+export AWS_ACCESS_KEY_ID=""
+export AWS_SECRET_ACCESS_KEY=""
