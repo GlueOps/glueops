@@ -1,15 +1,15 @@
 regions:
 - us-west-2
+- global
 
 account-blocklist:
 - "574391608739" # root account
 
 accounts:
-  539362929792: #Update this when changing the account (see the roles below for account numbers)
+  723876146658: #Update this when changing the account (see the roles below for account numbers)
     presets:
       - common
   
-#723876146658
   
 presets:
   common:
