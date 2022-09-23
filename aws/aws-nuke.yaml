@@ -5,7 +5,7 @@ account-blocklist:
 - "574391608739" # root account
 
 accounts:
-  723876146658: #Update this when changing the account (see the roles below for account numbers)
+  539362929792: #Update this when changing the account (see the roles below for account numbers)
     presets:
       - common
   
@@ -25,5 +25,5 @@ presets:
         value: '.*OrganizationAccountAccessRole.*'
 
 #Make sure your export the terraform-svc account credentials and then the commands below assume roles.
-#./aws-nuke-v2.16.0-linux-amd64 -c ../aws-nuke.yaml --assume-role-arn arn:aws:iam::539362929792:role/OrganizationAccountAccessRole --no-dry-run --force
-#./aws-nuke-v2.16.0-linux-amd64 -c ../aws-nuke.yaml --assume-role-arn arn:aws:iam::723876146658:role/OrganizationAccountAccessRole --no-dry-run --force
+#./aws-nuke-v2.19.0-linux-amd64 -c ../aws-nuke.yaml --assume-role-arn arn:aws:iam::539362929792:role/OrganizationAccountAccessRole --no-dry-run --force
+#./aws-nuke-v2.19.0-linux-amd64 -c ../aws-nuke.yaml --assume-role-arn arn:aws:iam::723876146658:role/OrganizationAccountAccessRole --no-dry-run --force
