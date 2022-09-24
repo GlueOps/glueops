@@ -36,7 +36,7 @@ tasks:
   configs:
     desc: Generate configs
     cmds:
-      - envsubst < application-definition-for-apps-cluster.yaml.tpl > application-definition-for-apps-cluster.yaml
+      - envsubst < ../shared/application-definition-for-apps-cluster.yaml.tpl > ../shared/application-definition-for-apps-cluster.yaml
 
   gke_up:
     desc: Brings up GKE Cluster
@@ -84,7 +84,7 @@ tasks:
       - kubectl patch svc argocd-server -n argocd -p {{shellQuote .SVC_LB_PATCH}}
       - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
       - argocd cluster add {{.APPS_CLUSTER_NAME}} --grpc-web --yes
-      - kubectl apply -f admiral-argocd-health-check.yaml -n argocd
+      - kubectl apply -f ../shared/admiral-argocd-health-check.yaml -n argocd
 
   get_argocd_logins:
     desc: get logins for argocd
@@ -99,4 +99,4 @@ tasks:
     desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
     cmds:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
-      - kubectl apply -f application-definition-for-apps-cluster.yaml -n argocd
+      - kubectl apply -f ../shared/application-definition-for-apps-cluster.yaml -n argocd
