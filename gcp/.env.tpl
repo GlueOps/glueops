@@ -3,6 +3,7 @@
 export COMPANY_KEY="<developer-name>"
 export CREATION_DATE=`date '+%d%H%M'`
 export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
+export CAPTAIN_DOMAIN=".us-central1.gcp."$COMPANY_KEY".glueops.rocks"
 
 #https://dash.cloudflare.com/profile/api-tokens
 export CLOUDFLARE_API_TOKEN="<replace-with-your-token>"

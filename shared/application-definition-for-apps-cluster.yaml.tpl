@@ -27,14 +27,26 @@ spec:
         - name: gitHub.k8sBootstrapRepo
           value: aHR0cHM6Ly9naXRodWIuY29tL0dsdWVPcHMvcGxhdGZvcm0uZ2l0
       values: |-
+        vault:
+          hostname: vault.$CAPTAIN_DOMAIN
         grafana:
-          root_url: "https://grafana.gcp.glueops.rocks"
+          root_url: "https://grafana.$CAPTAIN_DOMAIN"
           github_client_id: $GRAFANA_GITHUB_CLIENT_ID
           github_client_secret: $GRAFANA_GITHUB_CLIENT_SECRET
+          hostname: grafana.$CAPTAIN_DOMAIN
         argo-cd:
           server:
+            service:
+              annotations:
+                external-dns.alpha.kubernetes.io/hostname: "argocd.$CAPTAIN_DOMAIN"
+            ingress:
+              hosts: ["argocd.$CAPTAIN_DOMAIN"]
+              tls: 
+                - 
+                  hosts: 
+                    - argocd.$CAPTAIN_DOMAIN
             config:
-              url: https://argocd.gcp.glueops.rocks
+              url: "https://argocd.$CAPTAIN_DOMAIN"
               dex.config: |
                 connectors:
                   # GitHub GlueOps
