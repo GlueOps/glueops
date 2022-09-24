@@ -7,7 +7,7 @@ export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
 
 #Note you need to add this as an edge SSL cert to cloudflare
 #Example: "*.us-central1.gcp.example.glueops.rocks"
-export CAPTAIN_DOMAIN=".us-central1.gcp."$COMPANY_KEY".glueops.rocks"
+export CAPTAIN_DOMAIN="us-central1.gcp."$COMPANY_KEY".glueops.rocks"
 
 #https://dash.cloudflare.com/profile/api-tokens
 export CLOUDFLARE_API_TOKEN="<replace-with-your-token>"
