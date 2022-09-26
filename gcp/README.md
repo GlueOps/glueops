@@ -3,15 +3,9 @@
 
 #### Notes:
 
-Before you begin make sure your Taskfile.yaml has the proper environment variables set:
-
-```
-TF_VAR_COMPANY_KEY - this should be your name or another unique identifier that won't collide with another team member
-TF_VAR_TEST_NUMBER - this should be incremented based on how many times you have run gke_up
-```
-Notes:
 - All projects above will be under the glueops.rocks gcp organization. It's a pure dev org so don't expect to not lose any work.
-- ALso sure you don't let your codespaces go idle. I recommend increasing your codespace timeout and running this all inside of tmux. Otherwise expect to monitor the gke_up for at least 15-25mins.
+- If you are using GitHub codespaces, We recommend adjusting your idle settings so that your codespace doesn't stop running while you wait for things to spin up. As of 2022-09, the terraform takes about 15-25minutes to finish running.
+
 
 #### First authenticate TWICE. 
 
