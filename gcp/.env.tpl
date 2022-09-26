@@ -4,6 +4,11 @@ export COMPANY_KEY="<developer-name>"
 export CREATION_DATE=`date '+%d%H%M'`
 export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
 
+
+#Note you need to add this as an edge SSL cert to cloudflare
+#Example: "*.us-central1.gcp.example.glueops.rocks"
+export CAPTAIN_DOMAIN="us-central1.gcp."$COMPANY_KEY".glueops.rocks"
+
 #https://dash.cloudflare.com/profile/api-tokens
 export CLOUDFLARE_API_TOKEN="<replace-with-your-token>"
 
@@ -12,7 +17,7 @@ export ZEROSSL_EAB_KID="<replace-with-your-kid>"
 export ZEROSSL_EAB_HMAC_KEY="<replace-with-your-hmac-key>"
 
 #https://github.com/organizations/GlueOps/settings/applications/
-#Create two oauth apps.
+#Create two oauth apps in YOUR own github account. Do not use the GlueOps account as we use this for GitHub actions and/or automated testing.
 
 # App 1 is ArgoCD:
 # Application Name: ArgoCD

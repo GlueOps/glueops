@@ -26,21 +26,17 @@ tasks:
     cmds:
       - echo {{.APPS_CLUSTER_NAME}}
 
-  gcp_auth:
+  auth:
     desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
     cmds:
       - gcloud auth application-default login --no-launch-browser
       - gcloud init --console-only
 
-  aws_auth:
-    desc: Assume application account role and sets environment variables
-    cmds:
-      - read ak sak st < <(echo $(aws sts assume-role --role-arn "arn:aws:iam::539362929792:role/OrganizationAccountAccessRole" --role-session-name k8s-test | jq -r '.Credentials | "\(.AccessKeyId) \(.SecretAccessKey) \(.SessionToken)"')) && export AWS_ACCESS_KEY_ID=$ak AWS_SECRET_ACCESS_KEY=$sak AWS_SESSION_TOKEN=$st
 
   configs:
     desc: Generate configs
     cmds:
-      - envsubst < application-definition-for-apps-cluster.yaml.tpl > application-definition-for-apps-cluster.yaml
+      - envsubst < ../shared/application-definition-for-apps-cluster.yaml.tpl > ../shared/application-definition-for-apps-cluster.yaml
 
   gke_up:
     desc: Brings up GKE Cluster
@@ -85,25 +81,17 @@ tasks:
       - kubectl create namespace argocd || true
       - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.11/manifests/install.yaml
       - kubectl wait pods --all -n argocd --for condition=Ready --timeout=120s
-      - kubectl patch svc argocd-server -n argocd -p '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
-      # this is structured differently in AWS response so, we'll need to edit this for aws
-      #GCP
-      #- until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
-      #AWS
-      - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].hostname}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
-      ## For AWS you need to be in the context of the captain cluster. So basically assume the role for the captain cluster but be logged into argo on the admiral cluster
+      - kubectl patch svc argocd-server -n argocd -p {{shellQuote .SVC_LB_PATCH}}
+      - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
       - argocd cluster add {{.APPS_CLUSTER_NAME}} --grpc-web --yes
-      - kubectl apply -f admiral-argocd-health-check.yaml -n argocd
+      - kubectl apply -f ../shared/admiral-argocd-health-check.yaml -n argocd
 
   get_argocd_logins:
     desc: get logins for argocd
     cmds:
       - rm -rf credentials.txt
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
-      #GCP
-      #- echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
-      #AWS
-      - echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].hostname}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
+      - echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
       - kubectl config use-context {{.APPS_CLUSTER_NAME}}
       - echo 'Apps Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
 
@@ -111,6 +99,7 @@ tasks:
     desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
     cmds:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+<<<<<<< HEAD:Taskfile.yaml
       - kubectl apply -f application-definition-for-apps-cluster.yaml -n argocd
 
 
@@ -126,3 +115,6 @@ tasks:
 
 ## updatedate ~/.kube/config
 # aws eks update-kubeconfig --region us-west-2 --name test-nonprod-test-stage-test-name-cluster
+=======
+      - kubectl apply -f ../shared/application-definition-for-apps-cluster.yaml -n argocd
+>>>>>>> 🚀💎🙌🚀:gcp/Taskfile.yaml
