@@ -99,22 +99,4 @@ tasks:
     desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
     cmds:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
-<<<<<<< HEAD:Taskfile.yaml
-      - kubectl apply -f application-definition-for-apps-cluster.yaml -n argocd
-
-
-
-### aws_auth
-## Assume role
-# aws sts assume-role --role-arn "arn:aws:iam::041618144804:role/OrganizationAccountAccessRole" --role-session-name k8s-test
-
-## get creds from responds, jq, export variables like this:
-# export AWS_ACCESS_KEY_ID=""
-# export AWS_SECRET_ACCESS_KEY=""
-# export AWS_SESSION_TOKEN=""
-
-## updatedate ~/.kube/config
-# aws eks update-kubeconfig --region us-west-2 --name test-nonprod-test-stage-test-name-cluster
-=======
       - kubectl apply -f ../shared/application-definition-for-apps-cluster.yaml -n argocd
->>>>>>> 🚀💎🙌🚀:gcp/Taskfile.yaml
