@@ -1,4 +1,0 @@
-IAMUsers:
-  exclude:
-    names_regex:
-      - .*OrganizationAccountAccessRole.*
