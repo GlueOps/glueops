@@ -1,5 +1,8 @@
 # Note you should only source this .env file once as the CREATION_DATE will change! Alternatively, you can hardcode it.
 
+export TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP="<ask-org-admins-for-an-email-group>"
+
+
 export COMPANY_KEY="<developer-name>"
 export CREATION_DATE=`date '+%d%H%M'`
 export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps

@@ -1,6 +1,7 @@
 variable "GCP_ORGANIZATION_ID" {}
 variable "COMPANY_KEY" {}
 variable "TEST_NUMBER" {}
+variable "ENVIRONMENT_SPECIFIC_EMAIL_GROUP" {}
 
 
 locals {
@@ -10,7 +11,7 @@ locals {
   environments             = toset(["admiral-${var.TEST_NUMBER}", "apps-${var.TEST_NUMBER}"])
 
   admins = [
-    "group:dev-only-users@glueops.dev",
+    "group:${var.ENVIRONMENT_SPECIFIC_EMAIL_GROUP}",
   ]
 
   # ref: https://cloud.google.com/iam/docs/understanding-roles
