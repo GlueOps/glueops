@@ -11,14 +11,20 @@ env:
     sh: echo -n $COMPANY_KEY
   TF_VAR_TEST_NUMBER: 
     sh: echo -n $CREATION_DATE
-  APPS_CLUSTER_NAME: 
-    sh: echo -n $APPS_CLUSTER_NAME
-  SVC_LB_PATCH:
-    sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
   TF_VAR_ADMIRAL_ACCOUNT_ID:
     sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("admiral")) | .Id')
   TF_VAR_CAPTAIN_ACCOUNT_ID:
     sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("captain")) | .Id')
+  AWS_ACCESS_KEY_ID:
+    sh: echo -n $AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY:
+    sh: echo -n $AWS_SECRET_ACCESS_KEY
+  AWS_REGION:
+    sh: echo -n $AWS_REGION
+  SVC_LB_PATCH:
+    sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
+  
+
 
 tasks:
   default:
@@ -35,14 +41,12 @@ tasks:
     cmds:
       - envsubst < application-definition-for-apps-cluster.yaml.tpl > application-definition-for-apps-cluster.yaml
 
-  aws_admiral_up:
-    desc: Deploy Admiral AWS EKS cluster
+  aws_eks_up:
+    desc: Deploy Admiral and Captain AWS EKS clusters
     cmds:
       - date >> run.txt
       - terraform init
-      - terraform apply --auto-approve -target=module.organization_and_project_bootstrap
-      - terraform apply --auto-approve -target=module.vpc 
-      - terraform apply --auto-approve -target=module.gke
+      - terraform apply --auto-approve
       - terraform apply
       - date >> run.txt
 

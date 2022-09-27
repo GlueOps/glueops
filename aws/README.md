@@ -7,10 +7,8 @@ Before you begin make sure your Taskfile.yaml has the proper environment variabl
 
 ```
 TF_VAR_COMPANY_KEY - this should be your name or another unique identifier that won't collide with another team member
-TF_VAR_TEST_NUMBER - this should be incremented based on how many times you have run gke_up
 ```
 Notes:
-- All projects above will be under the glueops.rocks gcp organization. It's a pure dev org so don't expect to not lose any work.
 - Also, be sure you don't let your codespaces go idle. I recommend increasing your codespace timeout and running this all inside of tmux. Otherwise expect to monitor the gke_up for at least 15-25mins.
 
 #### First authenticate TWICE. 

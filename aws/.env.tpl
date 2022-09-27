@@ -8,7 +8,8 @@ export AWS_REGION="<tf-service-user-region>"
 # environment Ids
 export COMPANY_KEY="<developer-name>"
 export CREATION_DATE=`date '+%d%H%M'`
-export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
+# TODO - probably not used
+#export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
 
 #https://dash.cloudflare.com/profile/api-tokens
 export CLOUDFLARE_API_TOKEN="<replace-with-your-token>"
@@ -35,14 +36,3 @@ export ARGO_CD_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
 
 export GRAFANA_GITHUB_CLIENT_ID="<replace-with-your-client-id>"
 export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
-
-
-
-### AWS
-### Use your OWN aws account credentials here!
-export TF_VAR_MANAGEMENT_AWS_ACCESS_KEY_ID=""
-export TF_VAR_MANAGEMENT_AWS_SECRET_ACCESS_KEY=""
-
-### use the terraform-svc account 
-export AWS_ACCESS_KEY_ID=""
-export AWS_SECRET_ACCESS_KEY=""
