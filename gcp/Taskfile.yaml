@@ -100,3 +100,17 @@ tasks:
     cmds:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
       - kubectl apply -f ../shared/application-definition-for-apps-cluster.yaml -n argocd
+
+  admiral:
+    desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
+    cmds:
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+
+  captain:
+    desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
+    cmds:
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps
+
+  
+
+      
