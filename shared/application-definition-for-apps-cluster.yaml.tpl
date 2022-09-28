@@ -60,9 +60,9 @@ spec:
                       - name: GlueOps
                         teams:
                         - argocd_super_admins
-                      - name: demo-antoniostacos
+                      - name: $CUSTOMER_GITHUB_ORG_NAME
                         teams:
-                        - developers
+                        - $CUSTOMER_GITHUB_ORG_TEAM_NAME
                       # Flag which indicates that all user groups and teams should be loaded.
                       loadAllGroups: false
             rbacConfig:
