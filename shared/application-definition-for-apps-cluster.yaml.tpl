@@ -34,6 +34,7 @@ spec:
           github_client_id: $GRAFANA_GITHUB_CLIENT_ID
           github_client_secret: $GRAFANA_GITHUB_CLIENT_SECRET
           hostname: grafana.$CAPTAIN_DOMAIN
+          github_org_names: GlueOps $CUSTOMER_GITHUB_ORG_TEAM_NAME
         argo-cd:
           server:
             service:
