@@ -12,9 +12,6 @@ variable "COMPANY_KEY" {}
 
 data "aws_organizations_organization" "org" {}
 
-output "org_data" {
-  value = data.aws_organizations_organization.org.non_master_accounts
-}
 
 locals {
   admiral_id = "${var.COMPANY_KEY}-admiral"
@@ -58,7 +55,7 @@ provider "aws" {
 provider "aws" {
   alias = "captain"
   assume_role {
-    role_arn = "arn:aws:iam::${lcoal.captain_account_id}:role/OrganizationAccountAccessRole"
+    role_arn = "arn:aws:iam::${local.captain_account_id}:role/OrganizationAccountAccessRole"
   }
 }
 

@@ -11,20 +11,15 @@ TF_VAR_COMPANY_KEY - this should be your name or another unique identifier that 
 Notes:
 - Also, be sure you don't let your codespaces go idle. I recommend increasing your codespace timeout and running this all inside of tmux. Otherwise expect to monitor the gke_up for at least 15-25mins.
 
-#### First authenticate TWICE. 
-
-`task gcp_auth`
-- Note: you do not need to create a project, you just need to auth and then you can cancel out or say no to creating a project.
-
-#### Create all your configs.
+#### Create all your configs and set your environment.
 
 - Copy `.env.tpl` to create an `.env` file with the correct secrets.
 - Run `source .env` to populate your environment with the newly created variables and secrets
 - Run `task configs`
 
-#### Bring up new clusters in gke:
+#### Bring up new clusters in eks:
 
-`task gke_up`
+`task eks_up`
 
 #### Bootstrap admiral cluster:
 

@@ -5,12 +5,10 @@ version: '3'
 
 
 vars:
-  GREETING: Hello, World!
+  GREETING: "Time to deploy some EKS Clusters the GlueOps way!"
 env:
   TF_VAR_COMPANY_KEY: 
     sh: echo -n $COMPANY_KEY
-  TF_VAR_TEST_NUMBER: 
-    sh: echo -n $CREATION_DATE
   TF_VAR_ADMIRAL_ACCOUNT_ID:
     sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("admiral")) | .Id')
   TF_VAR_CAPTAIN_ACCOUNT_ID:
@@ -34,14 +32,14 @@ tasks:
 
   test:
     cmds:
-      - echo {{.APPS_CLUSTER_NAME}}
+      - echo {{.GREETING}}
   
   configs:
     desc: Generate configs
     cmds:
-      - envsubst < application-definition-for-apps-cluster.yaml.tpl > application-definition-for-apps-cluster.yaml
+      - envsubst < ../shared/application-definition-for-apps-cluster.yaml.tpl > ../shared/application-definition-for-apps-cluster.yaml
 
-  aws_eks_up:
+  eks_up:
     desc: Deploy Admiral and Captain AWS EKS clusters
     cmds:
       - date >> run.txt
