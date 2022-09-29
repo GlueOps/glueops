@@ -49,6 +49,7 @@ spec:
                   hosts: 
                     - argocd.$CAPTAIN_DOMAIN
             config:
+              exec.enabled: "true"
               url: "https://argocd.$CAPTAIN_DOMAIN"
               dex.config: |
                 connectors:
