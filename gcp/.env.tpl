@@ -9,9 +9,9 @@ export COMPANY_KEY="<developer-name>"
 export CREATION_DATE=$(date '+%d%H%M')
 export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
 
-# Note you need to add this as an edge SSL cert to cloudflare
-# Example: "*.us-central1.gcp.example.glueops.rocks"
-export CAPTAIN_DOMAIN="us-central1.gcp."$COMPANY_KEY".glueops.rocks"
+#Note you need to add this as an edge SSL cert to cloudflare
+#Example: "us-central1.gcp.example.glueops.rocks"
+export CAPTAIN_DOMAIN="<set-domain-suffix-here>"
 
 # https://dash.cloudflare.com/profile/api-tokens
 # Ensure your tokens are RESTRICTED to EDIT/READ on the $CAPTAIN_DOMAIN above.
