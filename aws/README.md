@@ -5,9 +5,6 @@
 
 Before you begin make sure your Taskfile.yaml has the proper environment variables set:
 
-```
-TF_VAR_COMPANY_KEY - this should be your name or another unique identifier that won't collide with another team member
-```
 Notes:
 - Also, be sure you don't let your codespaces go idle. I recommend increasing your codespace timeout and running this all inside of tmux. Otherwise expect to monitor the gke_up for at least 15-25mins.
 
