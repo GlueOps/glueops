@@ -29,7 +29,7 @@
 		"docker-from-docker": "latest",
 		"kubectl-helm-minikube": {//https://github.com/microsoft/vscode-dev-containers/blob/main/script-library/docs/kubectl-helm.md
 			"kubectl": "1.22.8",
-			"helm": "3.8.2",
+			"helm": "3.9.4",
 			"minikube": "none"
 		},
 		"terraform": "1.2.9",
