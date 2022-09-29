@@ -103,6 +103,7 @@ tasks:
   clean:
     desc: Nuke all AWS resources and delete temporary configuration files
     cmds:
+      - wget https://github.com/rebuy-de/aws-nuke/releases/download/v2.19.0/aws-nuke-v2.19.0-linux-amd64.tar.gz && tar -xvf aws-nuke-v2.19.0-linux-amd64.tar.gz && rm aws-nuke-v2.19.0-linux-amd64.tar.gz
       - task: nuke_captain
       - task: nuke_admiral
       - rm aws-nuke-*.yaml
