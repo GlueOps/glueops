@@ -12,9 +12,11 @@ export AWS_REGION="<tf-service-user-region>"
 
 # environment Ids
 export COMPANY_KEY="<developer-name>"
-export CREATION_DATE=`date '+%d%H%M'`
-# TODO - probably not used
-#export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
+export APPS_CLUSTER_NAME=$COMPANY_KEY-captain
+
+#Note you need to add this as an edge SSL cert to cloudflare
+#Example: "*.us-central1.gcp.example.glueops.rocks"
+export CAPTAIN_DOMAIN=$COMPANY_KEY".glueops.rocks"
 
 #https://dash.cloudflare.com/profile/api-tokens
 export CLOUDFLARE_API_TOKEN="<replace-with-your-token>"

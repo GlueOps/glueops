@@ -23,11 +23,11 @@ Notes:
 
 #### Bootstrap admiral cluster:
 
-`task gke_bootstrap_argocd`
+`task eks_bootstrap_argocd`
 
-#### Bootstrap apps cluster:
+#### Bootstrap captain cluster:
 
-`task gke_bootstrap_apps_cluster`
+`task eks_bootstrap_apps_cluster`
 
 #### Get logins for argocd deployments:
 `task get_argocd_logins`
