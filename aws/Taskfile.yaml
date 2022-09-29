@@ -133,4 +133,5 @@ tasks:
       NUKE_CONFIG:
         sh: echo -n aws-nuke-admiral-{{.ADMIRAL_ACCOUNT_ID}}.yaml
     cmds:
-      - envsubst < ./aws-nuke.yaml.tpl > ./aws-nuke-admiral-{{.NUKE_CONFIG}}.yaml
+      - envsubst < ./aws-nuke.yaml.tpl > ./{{.NUKE_CONFIG}}
+      - ./aws-nuke-v2.19.0-linux-amd64 -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force
