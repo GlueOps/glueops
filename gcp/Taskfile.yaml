@@ -26,7 +26,7 @@ tasks:
     cmds:
       - echo {{.APPS_CLUSTER_NAME}}
 
-  auth:
+  gcp_auth:
     desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
     cmds:
       - gcloud auth application-default login --no-launch-browser
