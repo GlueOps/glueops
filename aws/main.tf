@@ -14,8 +14,11 @@ data "aws_organizations_organization" "org" {}
 
 
 locals {
-  admiral_id = "${var.COMPANY_KEY}-admiral"
-  captain_id = "${var.COMPANY_KEY}-captain"
+  # TODO - uncomment after dev, due to names in fr-personal
+  # admiral_id = "${var.COMPANY_KEY}-admiral"
+  # captain_id = "${var.COMPANY_KEY}-captain"
+  admiral_id = "${var.COMPANY_KEY}_admiral"
+  captain_id = "${var.COMPANY_KEY}_captain"
 
   admiral_account_id = [
     for d in data.aws_organizations_organization.org.non_master_accounts :

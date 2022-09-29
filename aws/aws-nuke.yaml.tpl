@@ -3,10 +3,10 @@ regions:
 - global
 
 account-blocklist:
-- "574391608739" # root account
+- "$ROOT_ACCOUNT_ID" # root account
 
 accounts:
-  723876146658: #Update this when changing the account (see the roles below for account numbers)
+  $TARGET_ACCOUNT_ID:
     presets:
       - common
   

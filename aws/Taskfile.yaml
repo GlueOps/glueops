@@ -16,6 +16,8 @@ env:
     sh: echo -n $AWS_SECRET_ACCESS_KEY
   AWS_REGION:
     sh: echo -n $AWS_REGION
+  ROOT_ACCOUNT_ID:
+    sh: echo -n $(aws sts get-caller-identity | jq '.Account' | tr -d '"')
   ADMIRAL_ACCOUNT_ID:
     sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("admiral")) | .Id' | tr -d '"')
   CAPTAIN_ACCOUNT_ID:
@@ -40,7 +42,7 @@ tasks:
     cmds:
       - envsubst < ../shared/application-definition-for-apps-cluster.yaml.tpl > ../shared/application-definition-for-apps-cluster.yaml
       - rm -rf ~/.aws/ && mkdir ~/.aws
-      - envsubst < ./config.tpl > ~/.aws/config
+      - envsubst < ./aws_profile_config.tpl > ~/.aws/config
 
   eks_up:
     desc: Deploy Admiral and Captain AWS EKS clusters
@@ -100,19 +102,35 @@ tasks:
 
   clean:
     desc: Nuke all AWS resources and delete temporary configuration files
-    #TODO
-    vars:
-      FOLDER_ID:
-        sh: gcloud resource-manager folders list --organization=`gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]'` --filter="{{.TF_VAR_COMPANY_KEY}} Core" --format=json | jq -r '.[0].name | split("/") | .[1]' || true
     cmds:
-      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}} --quiet || true
-      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} --quiet || true
-      - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}} || true
-      - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} || true
-      - gcloud resource-manager folders update {{.FOLDER_ID}} --display-name=`date +%s`"-DELETED" || true
+      - task: nuke_captain
+      - task: nuke_admiral
+      - rm aws-nuke-*.yaml
       - rm -rf *terraform*
       - rm -rf .terraform*
       - rm -rf ~/.kube/
       - rm -rf credentials.txt
       - rm -rf ~/.aws/
-      
+  
+  nuke_captain:
+    desc: Nuke all AWS resources in Captain Account.
+    env:
+      TARGET_ACCOUNT_ID:
+        sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("captain")) | .Id' | tr -d '"')
+    vars:
+      NUKE_CONFIG:
+        sh: echo -n aws-nuke-captain-{{.CAPTAIN_ACCOUNT_ID}}.yaml
+    cmds:
+      - envsubst < ./aws-nuke.yaml.tpl > ./{{.NUKE_CONFIG}}
+      - ./aws-nuke-v2.19.0-linux-amd64 -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force
+
+  nuke_admiral:
+    desc: Nuke all AWS resources in Admiral Account.
+    env:
+      TARGET_ACCOUNT_ID:
+        sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("admiral")) | .Id' | tr -d '"')
+    vars:
+      NUKE_CONFIG:
+        sh: echo -n aws-nuke-admiral-{{.ADMIRAL_ACCOUNT_ID}}.yaml
+    cmds:
+      - envsubst < ./aws-nuke.yaml.tpl > ./aws-nuke-admiral-{{.NUKE_CONFIG}}.yaml
