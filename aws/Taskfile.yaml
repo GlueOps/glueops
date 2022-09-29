@@ -122,7 +122,7 @@ tasks:
         sh: echo -n aws-nuke-captain-{{.CAPTAIN_ACCOUNT_ID}}.yaml
     cmds:
       - envsubst < ./aws-nuke.yaml.tpl > ./{{.NUKE_CONFIG}}
-      - ./aws-nuke-v2.19.0-linux-amd64 -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force
+      - timeout 300s ./aws-nuke-v2.19.0-linux-amd64 -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force
 
   nuke_admiral:
     desc: Nuke all AWS resources in Admiral Account.
