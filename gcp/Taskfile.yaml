@@ -70,10 +70,10 @@ tasks:
     cmds:
       - rm -rf ~/.kube/
       - gcloud container clusters get-credentials admiral-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}}
-      - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+      - kubectl config rename-context `kubectl config current-context` {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
       - mv ~/.kube/config ~/.kube/admiral
       - gcloud container clusters get-credentials apps-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}}
-      - kubectl config rename-context `kubectl config current-context` {{.TEST_VAR}} {{.APPS_CLUSTER_NAME}}
+      - kubectl config rename-context `kubectl config current-context` {{.APPS_CLUSTER_NAME}}
       - mv ~/.kube/config ~/.kube/apps
       - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/apps kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
       - rm ~/.kube/admiral ~/.kube/apps
