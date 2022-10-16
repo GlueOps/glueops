@@ -49,7 +49,7 @@ export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
 export GOOGLE_PROJECT=$COMPANY_KEY-apps-$CREATION_DATE
 export GCP_KMS_KEY_RING=apps-$CREATION_DATE
 export GCP_KMS_ENABLED=true
-export GOOGLE_CREDENTIALS="base64-encoded-json-file-without-newlines"
+export VAULT_GOOGLE_CREDENTIALS="base64-encoded-json-file-without-newlines"
 
 # GCP / Terraform Cloud Operator Settings:
 export GCP_TFC_ENABLED=true

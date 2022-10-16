@@ -35,7 +35,7 @@ spec:
         - name: vault.cloud.credentials.gcp.KMS_CRYPTO_KEY
           value: "encrypt_decrypt-$GCP_KMS_KEY_RING"
         - name: vault.cloud.credentials.gcp.GOOGLE_CREDENTIALS
-          value: "$GOOGLE_CREDENTIALS"
+          value: "$VAULT_GOOGLE_CREDENTIALS"
         - name: vault.cloud.enable.gcp
           value: "$GCP_KMS_ENABLED"
         - name: terraformCloudOperator.cloud.credentials.gcp.GOOGLE_CREDENTIALS
