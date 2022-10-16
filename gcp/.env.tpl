@@ -43,3 +43,10 @@ export ARGO_CD_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
 
 export GRAFANA_GITHUB_CLIENT_ID="<replace-with-your-client-id>"
 export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
+
+
+# GCP KMS settings:
+export GOOGLE_PROJECT=$COMPANY_KEY-apps-$CREATION_DATE
+export GCP_KMS_KEY_RING=apps-$CREATION_DATE
+export GCP_KMS_ENABLED=true
+export GOOGLE_CREDENTIALS="base64-encoded-json-file-without-newlines"
