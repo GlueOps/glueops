@@ -50,3 +50,12 @@ export GOOGLE_PROJECT=$COMPANY_KEY-apps-$CREATION_DATE
 export GCP_KMS_KEY_RING=apps-$CREATION_DATE
 export GCP_KMS_ENABLED=true
 export GOOGLE_CREDENTIALS="base64-encoded-json-file-without-newlines"
+
+# GCP / Terraform Cloud Operator Settings:
+export GCP_TFC_ENABLED=true
+#Remove newlines and then base64 encode token
+export TFC_GOOGLE_CREDENTIALS="base64-encoded-json-file-without-newlines"
+
+## When creating the terraform cloud org make sure it's named well. We should probably only use one organization per captain/apps cluster:
+# echo -n 'credentials app.terraform.io { token = "token goes here" }' | base64
+export TFC_API_TOKEN="<replace-with-org-specific-team-api-token>"
