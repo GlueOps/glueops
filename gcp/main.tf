@@ -91,8 +91,8 @@ module "gke" {
 module "svc_accounts" {
   source = "git::https://github.com/GlueOps/terraform-gcp-captain-service-accounts.git?ref=v0.1.0"
   svc_accounts_and_roles = {
-    terraform-cloud-operator = toset(["roles/owner"])
-    hashicorp-vault          = toset(["roles/cloudkms.cryptoKeyEncrypterDecrypter"])
+    terraform-cloud-operator = toset(["roles/cloudsql.admin"])
+    hashicorp-vault          = toset(["roles/cloudkms.cryptoKeyEncrypterDecrypter","roles/cloudkms.viewer"])
   }
   gcp_project_name = local.apps_project_name
 }
