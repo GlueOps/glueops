@@ -150,3 +150,4 @@ GlueOps/
 run.txt
 credentials.txt
 application-definition-for-apps-cluster.yaml
+*.jb64
