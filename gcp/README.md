@@ -6,10 +6,9 @@
 - All projects above will be under the glueops.rocks gcp organization. It's a pure dev org so don't expect to not lose any work.
 - If you are using GitHub codespaces, We recommend adjusting your idle settings so that your codespace doesn't stop running while you wait for things to spin up. As of 2022-09, the terraform takes about 15-25minutes to finish running.
 
-
 #### First authenticate TWICE. 
 
-`task auth`
+`task gcp_auth`
 - Note: you do not need to create a project, you just need to auth and then you can cancel out or say no to creating a project.
 
 #### Start creating your configs:

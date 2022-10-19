@@ -153,3 +153,5 @@ application-definition-for-apps-cluster.yaml
 
 #base64 encoded json files
 *.jb64
+aws-nuke-*
+
