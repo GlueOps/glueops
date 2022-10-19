@@ -57,5 +57,5 @@ export GCP_TFC_ENABLED=true
 export TFC_GOOGLE_CREDENTIALS="base64-encoded-json-file-without-newlines"
 
 ## When creating the terraform cloud org make sure it's named well. We should probably only use one organization per captain/apps cluster:
-# echo -n 'credentials app.terraform.io { token = "token goes here" }' | base64
-export TFC_API_TOKEN="<replace-with-org-specific-team-api-token>"
+# `echo -n 'credentials app.terraform.io { token = "TEAM-TOKEN-GOES-HERE. DO NOT USE A ORG TOKEN OR A USER TOKEN." }' | base64` 
+export TFC_API_TOKEN="<take output from echo/base64 command above.>"
