@@ -43,3 +43,19 @@ export ARGO_CD_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
 
 export GRAFANA_GITHUB_CLIENT_ID="<replace-with-your-client-id>"
 export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
+
+
+# GCP KMS settings:
+export GOOGLE_PROJECT=$COMPANY_KEY-apps-$CREATION_DATE
+export GCP_KMS_KEY_RING=apps-$CREATION_DATE
+export GCP_KMS_ENABLED=true
+export VAULT_GOOGLE_CREDENTIALS="base64-encoded-json-file-without-newlines"
+
+# GCP / Terraform Cloud Operator Settings:
+export GCP_TFC_ENABLED=true
+#Remove newlines and then base64 encode token
+export TFC_GOOGLE_CREDENTIALS="base64-encoded-json-file-without-newlines"
+
+## When creating the terraform cloud org make sure it's named well. We should probably only use one organization per captain/apps cluster:
+# `echo -n 'credentials app.terraform.io { token = "TEAM-TOKEN-GOES-HERE. DO NOT USE A ORG TOKEN OR A USER TOKEN." }' | base64` 
+export TFC_API_TOKEN="<take output from echo/base64 command above.>"

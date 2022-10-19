@@ -28,6 +28,24 @@ spec:
           value: aHR0cHM6Ly9naXRodWIuY29tL0dsdWVPcHMvcGxhdGZvcm0uZ2l0
         - name: gitHub.customer_github_org_and_team
           value: "$CUSTOMER_GITHUB_ORG_NAME:$CUSTOMER_GITHUB_ORG_TEAM_NAME"
+        - name: vault.cloud.credentials.gcp.GOOGLE_PROJECT
+          value: "$GOOGLE_PROJECT"
+        - name: vault.cloud.credentials.gcp.KMS_KEY_RING
+          value: "$GCP_KMS_KEY_RING"
+        - name: vault.cloud.credentials.gcp.KMS_CRYPTO_KEY
+          value: "encrypt_decrypt-$GCP_KMS_KEY_RING"
+        - name: vault.cloud.credentials.gcp.GOOGLE_CREDENTIALS
+          value: "$VAULT_GOOGLE_CREDENTIALS"
+        - name: vault.cloud.enable.gcp
+          value: "$GCP_KMS_ENABLED"
+        - name: terraformCloudOperator.cloud.credentials.gcp.GOOGLE_CREDENTIALS
+          value: >-
+            $TFC_GOOGLE_CREDENTIALS
+        - name: terraformCloudOperator.terraform_cloud_api_token
+          value: >-
+            $TFC_API_TOKEN
+        - name: terraformCloudOperator.cloud.enable.gcp
+          value: "$GCP_TFC_ENABLED"
       values: |-
         vault:
           hostname: vault.$CAPTAIN_DOMAIN
