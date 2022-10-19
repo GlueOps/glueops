@@ -85,6 +85,39 @@ global variable set name: tfc_core:
 | VAULT_TOKEN | ex. "hvs.XXXXXXXXXX" | Environment Variable | yes |
 
 
+#### Configure vault:
+
+Create a new app in argocd:
+
+```
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault-configuration
+  namespace: glueops-core
+spec:
+  destination:
+    namespace: glueops-core-vault-configuration
+    server: https://kubernetes.default.svc
+  project: glueops-core
+  source:
+    chart: vault-configuration
+    helm:
+      parameters:
+      - name: TFC_ORG_NAME
+        value: yolo3-190345-apps
+      - name: TOGGLE_TO_RERUN
+        value: "1"
+      - name: GLUEOPS_ENV
+        value: yolo3-190345-apps
+    repoURL: https://glueops.github.io/helm-charts
+    targetRevision: 0.5.0
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+```
+
+Note: Update the TFC_ORG_NAME and GLUEOPS_ENV, at this time they should be the same.
 
 
 #### Cleanup:
