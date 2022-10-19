@@ -40,6 +40,53 @@
 #### Get logins for argocd deployments:
 `task get_argocd_logins`
 
+
+#### Login to App Cluster using GlueOps SSO:
+
+Create a new app to initialize Vault:
+
+```
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault-init
+  namespace: glueops-core
+spec:
+  destination:
+    namespace: glueops-core-vault-init
+    server: https://kubernetes.default.svc
+  project: glueops-core
+  source:
+    chart: vault-init
+    helm:
+      parameters:
+      - name: TFC_ORG_NAME
+        value: yolo3-190345-apps
+      - name: VAULT_ADDR
+        value: https://vault.gcp.yolo1.glueops.rocks
+    repoURL: https://glueops.github.io/helm-charts
+    targetRevision: 0.1.0
+  syncPolicy:
+    automated: {}
+    syncOptions:
+    - CreateNamespace=true
+
+```
+
+Note: Update the TFC_ORG_NAME and update VAULT_ADDR
+
+*Once You deploy the app go to TFC and check to see it successfully applied in the TFC Org. Grab the VAULT_ADDR and VAULT_TOKEN and create a global variable set for all workspaces in TFC.*
+
+global variable set name: tfc_core:
+
+| key | value | category | sensitive |
+|---|---| ---| ---|
+| VAULT_ADDR | ex. "https://vault.gcp.yolo1.glueops.rocks" | Environment Variable | no |
+| VAULT_TOKEN | ex. "hvs.XXXXXXXXXX" | Environment Variable | yes |
+
+
+
+
 #### Cleanup:
 `task clean`
 
