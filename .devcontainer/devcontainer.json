@@ -9,8 +9,11 @@
 		"args": { "VARIANT": "ubuntu-20.04" }
 	},
 
+	"runArgs": [ "--init", "--privileged" ],
+
 	// Set *default* container specific settings.json values on container create.
 	"settings": {},
+	
 
 
 	// Add the IDs of extensions you want installed when the container is created.
