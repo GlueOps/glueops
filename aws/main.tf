@@ -14,11 +14,8 @@ data "aws_organizations_organization" "org" {}
 
 
 locals {
-  # TODO - uncomment after dev, due to names in fr-personal
-  # admiral_id = "${var.COMPANY_KEY}-admiral"
-  # captain_id = "${var.COMPANY_KEY}-captain"
-  admiral_id = "${var.COMPANY_KEY}_admiral"
-  captain_id = "${var.COMPANY_KEY}_captain"
+   admiral_id = "${var.COMPANY_KEY}-admiral"
+   captain_id = "${var.COMPANY_KEY}-captain"
 
   admiral_account_id = [
     for d in data.aws_organizations_organization.org.non_master_accounts :
@@ -94,8 +91,8 @@ module "vpc_admiral" {
   }
   source = "cloudposse/vpc/aws"
   # Cloud Posse recommends pinning every module to a specific version
-  # version     = "x.x.x"
-  cidr_block = local.vpc.cidr_block
+  version     = "2.0.0"
+  ipv4_primary_cidr_block = local.vpc.cidr_block
 
   tags    = local.tags
   context = module.label.context
@@ -107,8 +104,8 @@ module "vpc_captain" {
   }
   source = "cloudposse/vpc/aws"
   # Cloud Posse recommends pinning every module to a specific version
-  # version     = "x.x.x"
-  cidr_block = local.vpc.cidr_block
+   version     = "2.0.0"
+  ipv4_primary_cidr_block = local.vpc.cidr_block
 
   tags    = local.tags
   context = module.label.context
