@@ -54,9 +54,9 @@ spec:
           value: "$AWS_KMS_ENABLED"
         - name: terraformCloudOperator.cloud.credentials.aws.AWS_ACCESS_KEY_ID
           value: "$TFC_AWS_ACCESS_KEY_ID"
-       - name: terraformCloudOperator.cloud.credentials.aws.AWS_SECRET_ACCESS_KEY
+        - name: terraformCloudOperator.cloud.credentials.aws.AWS_SECRET_ACCESS_KEY
           value: "$TFC_AWS_SECRET_ACCESS_KEY"
-       - name: terraformCloudOperator.cloud.credentials.aws.AWS_REGION
+        - name: terraformCloudOperator.cloud.credentials.aws.AWS_REGION
           value: "$AWS_REGION"
         - name: terraformCloudOperator.cloud.enable.aws
           value: "$AWS_TFC_ENABLED"
