@@ -49,7 +49,7 @@ spec:
         - name: vault.cloud.credentials.aws.AWS_SECRET_ACCESS_KEY
           value: "$VAULT_AWS_SECRET_ACCESS_KEY"
         - name: vault.cloud.credentials.aws.AWS_REGION
-          value: "$AWS_REGION"
+          value: "$AWS_REGION_BASE64"
         - name: vault.cloud.enable.aws
           value: "$AWS_KMS_ENABLED"
         - name: terraformCloudOperator.cloud.credentials.aws.AWS_ACCESS_KEY_ID
@@ -57,7 +57,7 @@ spec:
         - name: terraformCloudOperator.cloud.credentials.aws.AWS_SECRET_ACCESS_KEY
           value: "$TFC_AWS_SECRET_ACCESS_KEY"
         - name: terraformCloudOperator.cloud.credentials.aws.AWS_REGION
-          value: "$AWS_REGION"
+          value: "$AWS_REGION_BASE64"
         - name: terraformCloudOperator.cloud.enable.aws
           value: "$AWS_TFC_ENABLED"
       values: |-

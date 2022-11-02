@@ -235,3 +235,71 @@ module "eks_cluster_captain" {
   context            = module.label.context
   kubernetes_version = local.eks_cluster.cluster_version
 }
+
+locals {
+  aws_kms_key_alias = "alias/hashicorp-vault"
+}
+
+
+module "kms_vault_captain" {
+  providers = {
+    aws = aws.captain
+  }
+  source  = "cloudposse/kms-key/aws"
+  version = "0.12.1"
+
+  namespace               = "eg"
+  stage                   = "test"
+  name                    = "hashicorp-vault"
+  description             = "KMS key for hashicorp vault"
+  deletion_window_in_days = 7
+  enable_key_rotation     = false
+  alias                   = local.aws_kms_key_alias
+}
+
+
+module "captain_service_accounts" {
+  providers = {
+    aws = aws.captain
+  }
+  source = "git::https://github.com/GlueOps/terraform-aws-captain-service-accounts.git"
+
+  # The list of service accounts to create
+  service_accounts = [
+    {
+      name = "terraform-cloud-operator"
+      # The list of IAM policies to attach to the service account
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow"
+            Action = [
+              "*",
+            ]
+            Resource = "*"
+          }
+        ]
+      })
+    },
+    {
+      name = "hashicorp-vault"
+      # The list of IAM policies to attach to the service account
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow"
+            Action = [
+              "kms:Encrypt",
+              "kms:Decrypt",
+              "kms:DescribeKey"
+            ]
+            Resource = "*"
+          }
+        ]
+      })
+    },
+
+  ]
+}
