@@ -39,11 +39,9 @@ spec:
         - name: vault.cloud.enable.gcp
           value: "$GCP_KMS_ENABLED"
         - name: terraformCloudOperator.cloud.credentials.gcp.GOOGLE_CREDENTIALS
-          value: >-
-            $TFC_GOOGLE_CREDENTIALS
+          value: "$TFC_GOOGLE_CREDENTIALS"
         - name: terraformCloudOperator.terraform_cloud_api_token
-          value: >-
-            $TFC_API_TOKEN
+          value: "$TFC_API_TOKEN"
         - name: terraformCloudOperator.cloud.enable.gcp
           value: "$GCP_TFC_ENABLED"
       values: |-
