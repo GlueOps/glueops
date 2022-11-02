@@ -150,8 +150,9 @@ GlueOps/
 run.txt
 credentials.txt
 application-definition-for-apps-cluster.yaml
+aws-nuke
+*aws-iam-credentials*
 
 #base64 encoded json files
 *.jb64
-aws-nuke
 
