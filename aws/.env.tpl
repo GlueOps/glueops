@@ -42,3 +42,9 @@ export ARGO_CD_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
 
 export GRAFANA_GITHUB_CLIENT_ID="<replace-with-your-client-id>"
 export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
+
+
+
+## When creating the terraform cloud org make sure it's named well. We should probably only use one organization per captain/apps cluster:
+# `echo -n 'credentials app.terraform.io { token = "TEAM-TOKEN-GOES-HERE. DO NOT USE A ORG TOKEN OR A USER TOKEN." }' | base64` 
+export TFC_API_TOKEN="<take output from echo/base64 command above.>"
