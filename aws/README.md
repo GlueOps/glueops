@@ -15,7 +15,8 @@ Notes:
 
 #### Bring up new clusters in eks:
 
-`task eks_up`
+- Login to Terraform Cloud `terraform login`
+- Run `task eks_up`
 
 #### create configs
 
