@@ -19,9 +19,9 @@ env:
   ROOT_ACCOUNT_ID:
     sh: echo -n $(aws sts get-caller-identity | jq '.Account' | tr -d '"')
   ADMIRAL_ACCOUNT_ID:
-    sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("admiral")) | .Id' | tr -d '"')
+    sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("{{.TF_VAR_COMPANY_KEY}}-admiral")) | .Id' | tr -d '"')
   CAPTAIN_ACCOUNT_ID:
-    sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("captain")) | .Id' | tr -d '"')
+    sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("{{.TF_VAR_COMPANY_KEY}}-captain")) | .Id' | tr -d '"')
   SVC_LB_PATCH:
     sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
   
@@ -39,6 +39,21 @@ tasks:
   
   configs:
     desc: Generate configs
+    env:
+      VAULT_AWS_ACCESS_KEY_ID:
+        sh: jq -rj '.aws_access_key_id' ./aws-iam-credentials/hashicorp-vault.json | base64
+      VAULT_AWS_SECRET_ACCESS_KEY:
+        sh: jq -rj '.aws_secret_access_key' ./aws-iam-credentials/hashicorp-vault.json | base64
+      AWS_KMS_ENABLED: true
+      TFC_AWS_ACCESS_KEY_ID:
+        sh: jq -rj '.aws_access_key_id' ./aws-iam-credentials/terraform-cloud-operator.json | base64
+      TFC_AWS_SECRET_ACCESS_KEY:
+        sh: jq -rj '.aws_secret_access_key' ./aws-iam-credentials/terraform-cloud-operator.json | base64
+      AWS_TFC_ENABLED: true
+      AWS_REGION_BASE64:
+        sh: echo -n $AWS_REGION | base64
+      AWS_KMS_ENDPOINT:
+        sh: echo -n "https://kms.$AWS_REGION.amazonaws.com" | base64
     cmds:
       - envsubst < ../shared/application-definition-for-apps-cluster.yaml.tpl > ../shared/application-definition-for-apps-cluster.yaml
       - rm -rf ~/.aws/ && mkdir ~/.aws
@@ -103,9 +118,9 @@ tasks:
   clean:
     desc: Nuke all AWS resources and delete temporary configuration files
     cmds:
-      - wget https://github.com/rebuy-de/aws-nuke/releases/download/v2.19.0/aws-nuke-v2.19.0-linux-amd64.tar.gz && tar -xvf aws-nuke-v2.19.0-linux-amd64.tar.gz && rm aws-nuke-v2.19.0-linux-amd64.tar.gz
-      - task: nuke_captain
-      - task: nuke_admiral
+      - wget https://github.com/rebuy-de/aws-nuke/releases/download/v2.20.0/aws-nuke-v2.20.0-linux-amd64.tar.gz && tar -xvf aws-nuke-v2.20.0-linux-amd64.tar.gz && rm aws-nuke-v2.20.0-linux-amd64.tar.gz && mv aws-nuke-v2.20.0-linux-amd64 aws-nuke
+      - task nuke_captain
+      - task nuke_admiral
       - rm aws-nuke-*.yaml
       - rm -rf *terraform*
       - rm -rf .terraform*
@@ -117,24 +132,24 @@ tasks:
     desc: Nuke all AWS resources in Captain Account.
     env:
       TARGET_ACCOUNT_ID:
-        sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("captain")) | .Id' | tr -d '"')
+        sh: echo -n {{.CAPTAIN_ACCOUNT_ID}}
     vars:
       NUKE_CONFIG:
         sh: echo -n aws-nuke-captain-{{.CAPTAIN_ACCOUNT_ID}}.yaml
     cmds:
       - envsubst < ./aws-nuke.yaml.tpl > ./{{.NUKE_CONFIG}}
-      - timeout 300s ./aws-nuke-v2.19.0-linux-amd64 -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force --force-sleep=3 || true
-      - ./aws-nuke-v2.19.0-linux-amd64 -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force  --force-sleep=3
+      - timeout 300s ./aws-nuke -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force --force-sleep=3 || true
+      - ./aws-nuke -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force  --force-sleep=3 || true
 
   nuke_admiral:
     desc: Nuke all AWS resources in Admiral Account.
     env:
       TARGET_ACCOUNT_ID:
-        sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("admiral")) | .Id' | tr -d '"')
+        sh: echo -n {{.ADMIRAL_ACCOUNT_ID}}
     vars:
       NUKE_CONFIG:
         sh: echo -n aws-nuke-admiral-{{.ADMIRAL_ACCOUNT_ID}}.yaml
     cmds:
       - envsubst < ./aws-nuke.yaml.tpl > ./{{.NUKE_CONFIG}}
-      - timeout 300s ./aws-nuke-v2.19.0-linux-amd64 -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force --force-sleep=3  || true
-      - ./aws-nuke-v2.19.0-linux-amd64 -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force --force-sleep=3 
+      - timeout 300s ./aws-nuke -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force --force-sleep=3  || true
+      - ./aws-nuke -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force --force-sleep=3 || true

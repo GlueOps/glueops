@@ -39,13 +39,27 @@ spec:
         - name: vault.cloud.enable.gcp
           value: "$GCP_KMS_ENABLED"
         - name: terraformCloudOperator.cloud.credentials.gcp.GOOGLE_CREDENTIALS
-          value: >-
-            $TFC_GOOGLE_CREDENTIALS
+          value: "$TFC_GOOGLE_CREDENTIALS"
         - name: terraformCloudOperator.terraform_cloud_api_token
-          value: >-
-            $TFC_API_TOKEN
+          value: "$TFC_API_TOKEN"
         - name: terraformCloudOperator.cloud.enable.gcp
           value: "$GCP_TFC_ENABLED"
+        - name: vault.cloud.credentials.aws.AWS_ACCESS_KEY_ID
+          value: "$VAULT_AWS_ACCESS_KEY_ID"
+        - name: vault.cloud.credentials.aws.AWS_SECRET_ACCESS_KEY
+          value: "$VAULT_AWS_SECRET_ACCESS_KEY"
+        - name: vault.cloud.credentials.aws.AWS_REGION
+          value: "$AWS_REGION_BASE64"
+        - name: vault.cloud.enable.aws
+          value: "$AWS_KMS_ENABLED"
+        - name: terraformCloudOperator.cloud.credentials.aws.AWS_ACCESS_KEY_ID
+          value: "$TFC_AWS_ACCESS_KEY_ID"
+        - name: terraformCloudOperator.cloud.credentials.aws.AWS_SECRET_ACCESS_KEY
+          value: "$TFC_AWS_SECRET_ACCESS_KEY"
+        - name: terraformCloudOperator.cloud.credentials.aws.AWS_REGION
+          value: "$AWS_REGION_BASE64"
+        - name: terraformCloudOperator.cloud.enable.aws
+          value: "$AWS_TFC_ENABLED"
       values: |-
         vault:
           hostname: vault.$CAPTAIN_DOMAIN
