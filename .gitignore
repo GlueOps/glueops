@@ -152,6 +152,7 @@ credentials.txt
 application-definition-for-captain-cluster.yaml
 aws-nuke
 *aws-iam-credentials*
+terraform-cloud-operator/
 
 #base64 encoded json files
 *.jb64
