@@ -35,6 +35,11 @@ tasks:
 
   configs:
     desc: Generate configs
+    env:
+      VAULT_GOOGLE_CREDENTIALS:
+        sh: "[ -f ./gcp-service-account-keys/hashicorp-vault.jb64 ] && cat ./gcp-service-account-keys/hashicorp-vault.jb64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./gcp-service-account-keys/hashicorp-vault.jb64'"
+      TFC_GOOGLE_CREDENTIALS:
+        sh: "[ -f ./gcp-service-account-keys/terraform-cloud-operator.jb64 ] && cat ./gcp-service-account-keys/terraform-cloud-operator.jb64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./gcp-service-account-keys/terraform-cloud-operator.jb64'"
     cmds:
       - envsubst < ../shared/application-definition-for-apps-cluster.yaml.tpl > ../shared/application-definition-for-apps-cluster.yaml
 

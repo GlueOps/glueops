@@ -81,6 +81,7 @@ module "gke" {
   gcp_folder_id              = local.gcp_folder_id
   run_masters_in_single_zone = true
   spot_instances             = true
+  kubernetes_version_prefix  = "1.22.15-gke.100"
 
   depends_on = [
     module.vpc
