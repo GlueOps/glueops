@@ -15,6 +15,20 @@ env:
     sh: echo -n $CAPTAIN_CLUSTER_NAME
   SVC_LB_PATCH:
     sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
+  VAULT_GOOGLE_CREDENTIALS:
+    sh: "[ -f ./gcp-service-account-keys/hashicorp-vault.jb64 ] && cat ./gcp-service-account-keys/hashicorp-vault.jb64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./gcp-service-account-keys/hashicorp-vault.jb64'"
+  TFC_GOOGLE_CREDENTIALS:
+    sh: "[ -f ./gcp-service-account-keys/terraform-cloud-operator.jb64 ] && cat ./gcp-service-account-keys/terraform-cloud-operator.jb64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./gcp-service-account-keys/terraform-cloud-operator.jb64'"
+  TFC_API_TOKEN:
+    sh: "[ -f ./terraform-cloud-operator/team-api-token.b64 ] && cat ./terraform-cloud-operator/team-api-token.b64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./terraform-cloud-operator/team-api-token.b64'"
+  GCP_KMS_ENABLED: true
+  GCP_TFC_ENABLED: true
+  GOOGLE_PROJECT:
+    sh: echo -n "$COMPANY_KEY-captain-$CREATION_DATE"
+  GCP_KMS_KEY_RING:
+    sh: echo -n "captain-$CREATION_DATE"
+  CAPTAIN_CLUSTER_NAME:
+    sh: echo -n "$COMPANY_KEY-$CREATION_DATE-captain"
 
 tasks:
   default:
@@ -36,21 +50,6 @@ tasks:
 
   configs:
     desc: Generate configs
-    env:
-      VAULT_GOOGLE_CREDENTIALS:
-        sh: "[ -f ./gcp-service-account-keys/hashicorp-vault.jb64 ] && cat ./gcp-service-account-keys/hashicorp-vault.jb64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./gcp-service-account-keys/hashicorp-vault.jb64'"
-      TFC_GOOGLE_CREDENTIALS:
-        sh: "[ -f ./gcp-service-account-keys/terraform-cloud-operator.jb64 ] && cat ./gcp-service-account-keys/terraform-cloud-operator.jb64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./gcp-service-account-keys/terraform-cloud-operator.jb64'"
-      TFC_API_TOKEN:
-        sh: "[ -f ./terraform-cloud-operator/team-api-token.b64 ] && cat ./terraform-cloud-operator/team-api-token.b64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./terraform-cloud-operator/team-api-token.b64'"
-      GCP_KMS_ENABLED: true
-      GCP_TFC_ENABLED: true
-      GOOGLE_PROJECT:
-        sh: echo -n "$COMPANY_KEY-captain-$CREATION_DATE"
-      GCP_KMS_KEY_RING:
-        sh: echo -n "captain-$CREATION_DATE"
-      CAPTAIN_CLUSTER_NAME:
-        sh: echo -n "$COMPANY_KEY-$CREATION_DATE-captain"
     cmds:
       - envsubst < ../shared/application-definition-for-captain-cluster.yaml.tpl > ../shared/application-definition-for-captain-cluster.yaml
 
