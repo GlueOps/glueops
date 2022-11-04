@@ -28,6 +28,8 @@ env:
     sh: "[ -f ./terraform-cloud-operator/team-api-token.b64 ] && cat ./terraform-cloud-operator/team-api-token.b64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./terraform-cloud-operator/team-api-token.b64'"
   CAPTAIN_CLUSTER_NAME:
     sh: echo -n "$COMPANY_KEY-$CREATION_DATE-captain"
+  TF_VAR_TEST_NUMBER: 
+    sh: echo -n $CREATION_DATE
   
 
 

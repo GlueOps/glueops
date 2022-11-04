@@ -8,7 +8,8 @@ terraform {
 }
 
 variable "COMPANY_KEY" {}
-
+variable "TEST_NUMBER" {}
+variable "ENVIRONMENT_SPECIFIC_EMAIL_GROUP" {}
 
 data "aws_organizations_organization" "org" {}
 
