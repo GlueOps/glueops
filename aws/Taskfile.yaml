@@ -24,6 +24,10 @@ env:
     sh: echo -n $(aws organizations list-accounts | jq '.Accounts | .[] | select(.Name | contains("{{.TF_VAR_COMPANY_KEY}}-captain")) | .Id' | tr -d '"')
   SVC_LB_PATCH:
     sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
+  TFC_API_TOKEN:
+    sh: "[ -f ./terraform-cloud-operator/team-api-token.b64 ] && cat ./terraform-cloud-operator/team-api-token.b64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./terraform-cloud-operator/team-api-token.b64'"
+  CAPTAIN_CLUSTER_NAME:
+    sh: echo -n "$COMPANY_KEY-$CREATION_DATE-captain"
   
 
 
@@ -55,7 +59,7 @@ tasks:
       AWS_KMS_ENDPOINT:
         sh: echo -n "https://kms.$AWS_REGION.amazonaws.com" | base64
     cmds:
-      - envsubst < ../shared/application-definition-for-apps-cluster.yaml.tpl > ../shared/application-definition-for-apps-cluster.yaml
+      - envsubst < ../shared/application-definition-for-captain-cluster.yaml.tpl > ../shared/application-definition-for-captain-cluster.yaml
       - rm -rf ~/.aws/ && mkdir ~/.aws
       - envsubst < ./aws_profile_config.tpl > ~/.aws/config
 
@@ -79,12 +83,12 @@ tasks:
 
       # Set Captain Cluster kubeconfig
       - aws eks update-kubeconfig --region us-west-2 --name test-nonprod-test-stage-test-name-cluster --profile captain --role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole
-      - kubectl config rename-context `kubectl config current-context` {{.APPS_CLUSTER_NAME}}
-      - mv ~/.kube/config ~/.kube/apps
+      - kubectl config rename-context `kubectl config current-context` {{.CAPTAIN_CLUSTER_NAME}}
+      - mv ~/.kube/config ~/.kube/captain
 
       # Create combined kubeconfig
-      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/apps kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
-      - rm ~/.kube/admiral ~/.kube/apps
+      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/captain kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
+      - rm ~/.kube/admiral ~/.kube/captain
       
       # Deploy ArgoCD 
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-admiral
@@ -97,14 +101,14 @@ tasks:
       - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].hostname}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
       
       # Add Captain cluster to Admiral Cluster (from login above) from captain cluster context
-      - argocd cluster add {{.APPS_CLUSTER_NAME}} --grpc-web --yes
+      - argocd cluster add {{.CAPTAIN_CLUSTER_NAME}} --grpc-web --yes
       - kubectl apply -f ../shared/admiral-argocd-health-check.yaml -n argocd
 
-  eks_bootstrap_apps_cluster:
-    desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
+  eks_bootstrap_captain_cluster:
+    desc: Using the ADMIRAL, install an argo app to bootstrap the captain cluster
     cmds:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-admiral
-      - kubectl apply -f ../shared/application-definition-for-apps-cluster.yaml -n argocd
+      - kubectl apply -f ../shared/application-definition-for-captain-cluster.yaml -n argocd
 
   get_argocd_logins:
     desc: get logins for argocd
@@ -112,12 +116,13 @@ tasks:
       - rm -rf credentials.txt
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-admiral
       - echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].hostname}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
-      - kubectl config use-context {{.APPS_CLUSTER_NAME}}
-      - echo 'Apps Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
+      - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
+      - echo 'Captain Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
 
   clean:
     desc: Nuke all AWS resources and delete temporary configuration files
     cmds:
+      - terraform destroy --auto-approve -target=module.tfc || true
       - wget https://github.com/rebuy-de/aws-nuke/releases/download/v2.20.0/aws-nuke-v2.20.0-linux-amd64.tar.gz && tar -xvf aws-nuke-v2.20.0-linux-amd64.tar.gz && rm aws-nuke-v2.20.0-linux-amd64.tar.gz && mv aws-nuke-v2.20.0-linux-amd64 aws-nuke
       - task nuke_captain
       - task nuke_admiral

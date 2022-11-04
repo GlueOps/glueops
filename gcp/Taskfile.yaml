@@ -71,7 +71,7 @@ tasks:
       FOLDER_ID:
         sh: gcloud resource-manager folders list --organization=`gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]'` --filter="{{.TF_VAR_COMPANY_KEY}} Core" --format=json | jq -r '.[0].name | split("/") | .[1]' || true
     cmds:
-      - terraform destroy --auto-approve -target=module.tfc
+      - terraform destroy --auto-approve -target=module.tfc || true
       - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}} --quiet || true
       - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} --quiet || true
       - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}} || true

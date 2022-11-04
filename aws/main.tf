@@ -44,6 +44,12 @@ locals {
   }
 }
 
+module "tfc" {
+  source = "github.com/GlueOps/terraform-tfc-captain-team-api-token.git?ref=v0.1.0"
+  org_name = "captain-${var.COMPANY_KEY}-${var.TEST_NUMBER}"
+  email = var.ENVIRONMENT_SPECIFIC_EMAIL_GROUP
+}
+
 
 provider "aws" {
   alias = "admiral"

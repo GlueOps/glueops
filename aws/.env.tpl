@@ -1,17 +1,14 @@
-# Note you should only source this .env file once as the CREATION_DATE will change! Alternatively, you can hardcode it.
-export CUSTOMER_GITHUB_ORG_NAME="<customer-github-org-name>"
-export CUSTOMER_GITHUB_ORG_TEAM_NAME="<customer-github-org-team-name>"
-
-
-
 # AWS Credentials (from the Terraform Service User)
 export AWS_ACCESS_KEY_ID="<tf-service-user-credentials>"
 export AWS_SECRET_ACCESS_KEY="<tf-service-user-credentials>"
 export AWS_REGION="<tf-service-user-region>"
 
+# Note you should only source this .env file once as the CREATION_DATE will change! Alternatively, you can hardcode it.
+export CUSTOMER_GITHUB_ORG_NAME="<customer-github-org-name>"
+export CUSTOMER_GITHUB_ORG_TEAM_NAME="<customer-github-org-team-name>"
+
 # environment Ids
 export COMPANY_KEY="<developer-name>"
-export APPS_CLUSTER_NAME=$COMPANY_KEY-captain
 
 #Note you need to add this as an edge SSL cert to cloudflare
 #Example: "us-central1.gcp.example.glueops.rocks"
@@ -45,6 +42,3 @@ export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
 
 
 
-## When creating the terraform cloud org make sure it's named well. We should probably only use one organization per captain/apps cluster:
-# `echo -n 'credentials app.terraform.io { token = "TEAM-TOKEN-GOES-HERE. DO NOT USE A ORG TOKEN OR A USER TOKEN." }' | base64` 
-export TFC_API_TOKEN="<take output from echo/base64 command above.>"

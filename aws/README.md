@@ -28,7 +28,7 @@ Notes:
 
 #### Bootstrap captain cluster:
 
-`task eks_bootstrap_apps_cluster`
+`task eks_bootstrap_captain_cluster`
 
 #### Get logins for argocd deployments:
 `task get_argocd_logins`
