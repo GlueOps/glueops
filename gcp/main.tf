@@ -4,13 +4,14 @@ variable "TEST_NUMBER" {}
 variable "ENVIRONMENT_SPECIFIC_EMAIL_GROUP" {}
 
 
+
 locals {
   org_id                   = var.GCP_ORGANIZATION_ID
   company_key              = var.COMPANY_KEY
   gcp_billing_account_name = "My Billing Account"
-  environments             = toset(["admiral-${var.TEST_NUMBER}", "apps-${var.TEST_NUMBER}"])
+  environments             = toset(["admiral-${var.TEST_NUMBER}", "captain-${var.TEST_NUMBER}"])
 
-  apps_project_name = "${var.COMPANY_KEY}-apps-${var.TEST_NUMBER}"
+  apps_project_name = "${var.COMPANY_KEY}-captain-${var.TEST_NUMBER}"
 
   admins = [
     "group:${var.ENVIRONMENT_SPECIFIC_EMAIL_GROUP}",
@@ -31,6 +32,12 @@ locals {
 
 
   gcp_folder_id = split("/", module.organization_and_project_bootstrap.gcp_folder_id)[1]
+}
+
+module "tfc" {
+  source = "github.com/GlueOps/terraform-tfc-captain-team-api-token.git?ref=v0.1.0"
+  org_name = "captain-${var.COMPANY_KEY}-${var.TEST_NUMBER}"
+  email = var.ENVIRONMENT_SPECIFIC_EMAIL_GROUP
 }
 
 

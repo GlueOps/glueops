@@ -149,7 +149,7 @@ terraform.rc
 GlueOps/
 run.txt
 credentials.txt
-application-definition-for-apps-cluster.yaml
+application-definition-for-captain-cluster.yaml
 aws-nuke
 *aws-iam-credentials*
 

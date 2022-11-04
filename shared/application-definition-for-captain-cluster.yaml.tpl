@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: $APPS_CLUSTER_NAME
+  name: $CAPTAIN_CLUSTER_NAME
 spec:
   destination:
-    name: $APPS_CLUSTER_NAME
+    name: $CAPTAIN_CLUSTER_NAME
     namespace: glueops-core
     server: ''
   source:
@@ -14,7 +14,7 @@ spec:
     helm:
       parameters:
         - name: argo-cd.glueops.app_cluster_name
-          value: $APPS_CLUSTER_NAME
+          value: $CAPTAIN_CLUSTER_NAME
         - name: certManager.cloudflare_api_token
           value: $CLOUDFLARE_API_TOKEN
         - name: externalDns.cloudflare_api_token

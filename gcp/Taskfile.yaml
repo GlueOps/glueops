@@ -11,8 +11,8 @@ env:
     sh: echo -n $COMPANY_KEY
   TF_VAR_TEST_NUMBER: 
     sh: echo -n $CREATION_DATE
-  APPS_CLUSTER_NAME: 
-    sh: echo -n $APPS_CLUSTER_NAME
+  CAPTAIN_CLUSTER_NAME: 
+    sh: echo -n $CAPTAIN_CLUSTER_NAME
   SVC_LB_PATCH:
     sh: echo -n '{"spec"'':' '{"type"'':'  '"LoadBalancer"}}'
 
@@ -24,7 +24,7 @@ tasks:
 
   test:
     cmds:
-      - echo {{.APPS_CLUSTER_NAME}}
+      - echo {{.CAPTAIN_CLUSTER_NAME}}
 
   gcp_auth:
     desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
@@ -40,8 +40,18 @@ tasks:
         sh: "[ -f ./gcp-service-account-keys/hashicorp-vault.jb64 ] && cat ./gcp-service-account-keys/hashicorp-vault.jb64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./gcp-service-account-keys/hashicorp-vault.jb64'"
       TFC_GOOGLE_CREDENTIALS:
         sh: "[ -f ./gcp-service-account-keys/terraform-cloud-operator.jb64 ] && cat ./gcp-service-account-keys/terraform-cloud-operator.jb64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./gcp-service-account-keys/terraform-cloud-operator.jb64'"
+      TFC_API_TOKEN:
+        sh: "[ -f ./terraform-cloud-operator/team-api-token.b64 ] && cat ./terraform-cloud-operator/team-api-token.b64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./terraform-cloud-operator/team-api-token.b64'"
+      GCP_KMS_ENABLED: true
+      GCP_TFC_ENABLED: true
+      GOOGLE_PROJECT:
+        sh: echo -n "$COMPANY_KEY-captain-$CREATION_DATE"
+      GCP_KMS_KEY_RING:
+        sh: echo -n "captain-$CREATION_DATE"
+      CAPTAIN_CLUSTER_NAME:
+        sh: echo -n "$COMPANY_KEY-$CREATION_DATE-captain"
     cmds:
-      - envsubst < ../shared/application-definition-for-apps-cluster.yaml.tpl > ../shared/application-definition-for-apps-cluster.yaml
+      - envsubst < ../shared/application-definition-for-captain-cluster.yaml.tpl > ../shared/application-definition-for-captain-cluster.yaml
 
   gke_up:
     desc: Brings up GKE Cluster
@@ -61,9 +71,10 @@ tasks:
       FOLDER_ID:
         sh: gcloud resource-manager folders list --organization=`gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]'` --filter="{{.TF_VAR_COMPANY_KEY}} Core" --format=json | jq -r '.[0].name | split("/") | .[1]' || true
     cmds:
-      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}} --quiet || true
+      - terraform destroy --auto-approve -target=module.tfc
+      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}} --quiet || true
       - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} --quiet || true
-      - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}} || true
+      - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}} || true
       - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} || true
       - gcloud resource-manager folders update {{.FOLDER_ID}} --display-name=`date +%s`"-DELETED" || true
       - rm -rf *terraform*
@@ -78,18 +89,18 @@ tasks:
       - gcloud container clusters get-credentials admiral-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}}
       - kubectl config rename-context `kubectl config current-context` {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
       - mv ~/.kube/config ~/.kube/admiral
-      - gcloud container clusters get-credentials apps-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-apps-{{.TF_VAR_TEST_NUMBER}}
-      - kubectl config rename-context `kubectl config current-context` {{.APPS_CLUSTER_NAME}}
-      - mv ~/.kube/config ~/.kube/apps
-      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/apps kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
-      - rm ~/.kube/admiral ~/.kube/apps
+      - gcloud container clusters get-credentials captain-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}}
+      - kubectl config rename-context `kubectl config current-context` {{.CAPTAIN_CLUSTER_NAME}}
+      - mv ~/.kube/config ~/.kube/captain
+      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/captain kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
+      - rm ~/.kube/admiral ~/.kube/captain
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
       - kubectl create namespace argocd || true
       - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.11/manifests/install.yaml
       - kubectl wait pods --all -n argocd --for condition=Ready --timeout=120s
       - kubectl patch svc argocd-server -n argocd -p {{shellQuote .SVC_LB_PATCH}}
       - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
-      - argocd cluster add {{.APPS_CLUSTER_NAME}} --grpc-web --yes
+      - argocd cluster add {{.CAPTAIN_CLUSTER_NAME}} --grpc-web --yes
       - kubectl apply -f ../shared/admiral-argocd-health-check.yaml -n argocd
 
   get_argocd_logins:
@@ -98,24 +109,24 @@ tasks:
       - rm -rf credentials.txt
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
       - echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
-      - kubectl config use-context {{.APPS_CLUSTER_NAME}}
-      - echo 'Apps Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
+      - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
+      - echo 'Captain Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
 
-  gke_bootstrap_apps_cluster:
-    desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
+  gke_bootstrap_captain_cluster:
+    desc: Using the ADMIRAL, install an argo app to bootstrap the captain cluster
     cmds:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
-      - kubectl apply -f ../shared/application-definition-for-apps-cluster.yaml -n argocd
+      - kubectl apply -f ../shared/application-definition-for-captain-cluster.yaml -n argocd
 
   admiral:
-    desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
+    desc: Using the ADMIRAL context
     cmds:
       - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
 
   captain:
-    desc: Using the ADMIRAL, install an argo app to bootstrap the apps cluster
+    desc: Using the CAPTAIN context
     cmds:
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-apps
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-captain
 
   
 

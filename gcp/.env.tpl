@@ -7,7 +7,6 @@ export CUSTOMER_GITHUB_ORG_TEAM_NAME="<customer-github-org-team-name>"
 
 export COMPANY_KEY="<developer-name>"
 export CREATION_DATE=$(date '+%d%H%M')
-export APPS_CLUSTER_NAME=$COMPANY_KEY-$CREATION_DATE-apps
 
 #Note you need to add this as an edge SSL cert to cloudflare
 #Example: "us-central1.gcp.example.glueops.rocks"
@@ -45,14 +44,4 @@ export GRAFANA_GITHUB_CLIENT_ID="<replace-with-your-client-id>"
 export GRAFANA_GITHUB_CLIENT_SECRET="<replace-with-your-client-secret>"
 
 
-# GCP KMS settings:
-export GOOGLE_PROJECT=$COMPANY_KEY-apps-$CREATION_DATE
-export GCP_KMS_KEY_RING=apps-$CREATION_DATE
-export GCP_KMS_ENABLED=true
 
-# GCP / Terraform Cloud Operator Settings:
-export GCP_TFC_ENABLED=true
-
-## When creating the terraform cloud org make sure it's named well. We should probably only use one organization per captain/apps cluster:
-# `echo -n 'credentials app.terraform.io { token = "TEAM-TOKEN-GOES-HERE. DO NOT USE A ORG TOKEN OR A USER TOKEN." }' | base64` 
-export TFC_API_TOKEN="<take output from echo/base64 command above.>"
