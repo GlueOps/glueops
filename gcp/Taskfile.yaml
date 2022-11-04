@@ -26,9 +26,10 @@ tasks:
     cmds:
       - echo {{.CAPTAIN_CLUSTER_NAME}}
 
-  gcp_auth:
-    desc: Authenticate with GCP. This must be run before gke_up and/or gke_destroy
+  auth:
+    desc: Authenticate with GCP and Terraform Cloud. This must be run before gke_up and/or gke_destroy
     cmds:
+      - terraform login
       - gcloud auth application-default login --no-launch-browser
       - gcloud init --console-only
 

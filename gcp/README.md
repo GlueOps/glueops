@@ -8,10 +8,10 @@
 
 #### First authenticate TWICE. 
 
-`task gcp_auth`
+`task auth`
 - Note: you do not need to create a project, you just need to auth and then you can cancel out or say no to creating a project.
 
-#### Start creating your configs:
+#### Start setting your environment variables:
 
 - Copy `.env.tpl` to create an `.env` file with the correct secrets.
 - Run `source .env` to populate your environment with the newly created variables and secrets
@@ -19,6 +19,8 @@
 #### Bring up new clusters in gke:
 
 `task gke_up`
+
+#### Create configs:
 
 
 - Run `task configs` to generate all the configs for the next steps
