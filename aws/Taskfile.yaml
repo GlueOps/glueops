@@ -165,3 +165,14 @@ tasks:
       - envsubst < ./aws-nuke.yaml.tpl > ./{{.NUKE_CONFIG}}
       - timeout 300s ./aws-nuke -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force --force-sleep=3  || true
       - ./aws-nuke -c ./{{.NUKE_CONFIG}} --assume-role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole --no-dry-run --force --force-sleep=3 || true
+
+
+  admiral:
+    desc: Using the ADMIRAL context
+    cmds:
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-admiral
+
+  captain:
+    desc: Using the CAPTAIN context
+    cmds:
+      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-captain
