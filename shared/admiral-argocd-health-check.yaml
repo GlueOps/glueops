@@ -8,31 +8,16 @@ metadata:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
 data:
-  resource.customizations.useOpenLibs.argoproj.io_Application: "true"
-  resource.customizations.health.argoproj.io_Application: | #https://github.com/argoproj/argo-cd/issues/10550
+  resource.customizations.health.argoproj.io_Application: |
     hs = {}
     hs.status = "Progressing"
     hs.message = ""
     if obj.status ~= nil then
-      local status = obj.status
-      if status.conditions ~= nil then
-        for i, condition in ipairs(status.conditions) do
-          if condition.type ~= nil and string.match(condition.type, '.*Error$') then
-            hs.status = "Degraded"
-            hs.message = condition.message
-            return hs
-          end
-        end
-      end
-      if status.health ~= nil then
-        local health = status.health
-        hs.status = health.status
-        if health.message ~= nil then
-          hs.message = health.message
-        end
-        local syncStatus = (status.sync and status.sync.status or nil)
-        if hs.status == "Healthy" and syncStatus ~= "Synced" then
-          hs.status = "Progressing"
+      if obj.status.health ~= nil then
+        hs.status = obj.status.health.status
+        if obj.status.health.message ~= nil then
+          hs.message = obj.status.health.message
         end
       end
     end
+    return hs
