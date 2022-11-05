@@ -66,7 +66,7 @@ tasks:
       - envsubst < ./aws_profile_config.tpl > ~/.aws/config
 
   auth:
-    desc: Authenticate with Terraform Cloud. Note: This does NOT auth with AWS. AWS is done with environment variables
+    desc: Authenticate with Terraform Cloud. Note":" This does NOT auth with AWS. AWS is done with environment variables
     cmds:
       - terraform login
 
