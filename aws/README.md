@@ -10,6 +10,7 @@ Notes:
 
 #### set your environment
 
+- Run `task auth` to authenticate with terraform cloud
 - Copy `.env.tpl` to create an `.env` file with the correct secrets.
 - Run `source .env` to populate your environment with the newly created variables and secrets
 
