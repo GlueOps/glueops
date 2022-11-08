@@ -3,6 +3,10 @@
 
 version: '3'
 
+includes:
+  shared: ../shared
+
+
 vars:
   GREETING: "Time to deploy some EKS Clusters the GlueOps way!"
 env:
@@ -180,8 +184,3 @@ tasks:
     desc: Using the CAPTAIN context
     cmds:
       - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
-
-  send_credentials_to_slack:
-    desc: Send ephemeral credentials to slack
-    cmds:
-      - curl -X POST --data-urlencode "payload={'channel'":" '#github-actions-tests', 'username'":" 'webhookbot', 'text'":" '`cat credentials.txt`', 'icon_emoji'":" ':github:'}" {{.SLACK_WEBHOOK_URL}}

@@ -1,0 +1,8 @@
+version: '3'
+
+tasks:
+  send_credentials_to_slack:
+    desc: Send ephemeral credentials to slack
+    cmds:
+      - curl -X POST --data-urlencode "payload={'channel'":" '#github-actions-tests', 'username'":" 'webhookbot', 'text'":" '`cat credentials.txt`', 'icon_emoji'":" ':github:'}" {{.SLACK_WEBHOOK_URL}}
+
