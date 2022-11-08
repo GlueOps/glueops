@@ -4,11 +4,11 @@ export AWS_SECRET_ACCESS_KEY="<tf-service-user-credentials>"
 export AWS_REGION="<tf-service-user-region>"
 
 
-# Note you should only source this .env file once as the CREATION_DATE will change! Alternatively, you can hardcode it.
+# Note you should only source this .env file once as the UNIQUE_IDENTIFIER will change! Alternatively, you can hardcode it.
 export TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP="<ask-org-admins-for-an-email-group>"
 export CUSTOMER_GITHUB_ORG_NAME="<customer-github-org-name>"
 export CUSTOMER_GITHUB_ORG_TEAM_NAME="<customer-github-org-team-name>"
-export CREATION_DATE=$(date '+%d%H%M')
+export UNIQUE_IDENTIFIER=$(date '+%d%H%M')
 
 # environment Ids
 export COMPANY_KEY="<developer-name>"
