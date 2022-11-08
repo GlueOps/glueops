@@ -8,8 +8,8 @@ terraform {
 }
 
 variable "COMPANY_KEY" {}
-variable "TEST_NUMBER" {}
 variable "ENVIRONMENT_SPECIFIC_EMAIL_GROUP" {}
+variable "CAPTAIN_CLUSTER_NAME" {}
 
 data "aws_organizations_organization" "org" {}
 
@@ -45,10 +45,12 @@ locals {
   }
 }
 
+variable "VAULT_ADDR" {}
 module "tfc" {
-  source = "github.com/GlueOps/terraform-tfc-captain-team-api-token.git?ref=v0.1.0"
-  org_name = "captain-${var.COMPANY_KEY}-${var.TEST_NUMBER}"
+  source = "github.com/GlueOps/terraform-tfc-captain-team-api-token.git"
+  org_name = var.CAPTAIN_CLUSTER_NAME
   email = var.ENVIRONMENT_SPECIFIC_EMAIL_GROUP
+  VAULT_ADDR = var.VAULT_ADDR
 }
 
 

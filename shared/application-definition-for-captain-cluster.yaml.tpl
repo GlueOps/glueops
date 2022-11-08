@@ -10,7 +10,7 @@ spec:
   source:
     path: .
     repoURL: 'https://github.com/GlueOps/platform.git'
-    targetRevision: HEAD
+    targetRevision: venkata
     helm:
       parameters:
         - name: argo-cd.glueops.app_cluster_name
@@ -44,6 +44,8 @@ spec:
           value: "$TFC_API_TOKEN"
         - name: terraformCloudOperator.cloud.enable.gcp
           value: "$GCP_TFC_ENABLED"
+        - name: vault.config.glueops_env
+          value: "$CAPTAIN_CLUSTER_NAME"
         - name: vault.cloud.credentials.aws.AWS_ACCESS_KEY_ID
           value: "$VAULT_AWS_ACCESS_KEY_ID"
         - name: vault.cloud.credentials.aws.AWS_SECRET_ACCESS_KEY
@@ -60,6 +62,8 @@ spec:
           value: "$AWS_REGION_BASE64"
         - name: terraformCloudOperator.cloud.enable.aws
           value: "$AWS_TFC_ENABLED"
+        - name: terraformCloudOperator.terraform_cloud_organization_name
+          value: "$CAPTAIN_CLUSTER_NAME"
       values: |-
         vault:
           hostname: vault.$CAPTAIN_DOMAIN
@@ -101,6 +105,29 @@ spec:
                         - $CUSTOMER_GITHUB_ORG_TEAM_NAME
                       # Flag which indicates that all user groups and teams should be loaded.
                       loadAllGroups: false
+              resource.customizations.health.argoproj.io_Application: |
+                hs = {}
+                hs.status = "Progressing"
+                hs.message = ""
+                if obj.status ~= nil then
+                  if obj.status.health ~= nil then
+                    hs.status = obj.status.health.status
+                    if obj.status.health.message ~= nil then
+                      hs.message = obj.status.health.message
+                    end
+                  end
+                end
+                return hs
+              resource.customizations.health.app.terraform.io_Workspace: |
+                hs = {}
+                hs.status = "Degraded"
+                hs.message = ""
+                if obj.status ~= nil then
+                  if obj.status.runStatus == "applied" then
+                    hs.status = "Healthy"
+                  end
+                end
+                return hs
             rbacConfig:
               policy.csv: |
                 g, GlueOps:argocd_super_admins, role:admin
