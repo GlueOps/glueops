@@ -3,8 +3,6 @@
 
 version: '3'
 
-#TODO - "captain" and "admiral" are hardcoded throughout
-
 vars:
   GREETING: "Time to deploy some EKS Clusters the GlueOps way!"
 env:
@@ -28,6 +26,8 @@ env:
     sh: "[ -f ./terraform-cloud-operator/team-api-token.b64 ] && cat ./terraform-cloud-operator/team-api-token.b64 || echo -n 'This needs to be fixed before you bootstrap the clusters Missing file... ./terraform-cloud-operator/team-api-token.b64'"
   CAPTAIN_CLUSTER_NAME:
     sh: echo -n "captain-$COMPANY_KEY-$UNIQUE_IDENTIFIER"
+  ADMIRAL_CLUSTER_NAME:
+    sh: echo -n "{{.TF_VAR_COMPANY_KEY}}-admiral"
   TF_VAR_CAPTAIN_CLUSTER_NAME: "{{.CAPTAIN_CLUSTER_NAME}}"
   TF_VAR_VAULT_ADDR: "https://vault.{{.CAPTAIN_DOMAIN}}"
   
@@ -61,9 +61,25 @@ tasks:
       AWS_KMS_ENDPOINT:
         sh: echo -n "https://kms.$AWS_REGION.amazonaws.com" | base64
     cmds:
+      # Create argocd app config
       - envsubst < ../shared/application-definition-for-captain-cluster.yaml.tpl > ../shared/application-definition-for-captain-cluster.yaml
       - rm -rf ~/.aws/ && mkdir ~/.aws
       - envsubst < ./aws_profile_config.tpl > ~/.aws/config
+      
+      # Set Admiral Cluster kubeconfig
+      - rm -rf ~/.kube/
+      - aws eks update-kubeconfig --region us-west-2 --name test-nonprod-test-stage-test-name-cluster --profile admiral --role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole
+      - kubectl config rename-context `kubectl config current-context` {{.ADMIRAL_CLUSTER_NAME}}
+      - mv ~/.kube/config ~/.kube/admiral
+
+      # Set Captain Cluster kubeconfig
+      - aws eks update-kubeconfig --region us-west-2 --name test-nonprod-test-stage-test-name-cluster --profile captain --role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole
+      - kubectl config rename-context `kubectl config current-context` {{.CAPTAIN_CLUSTER_NAME}}
+      - mv ~/.kube/config ~/.kube/captain
+
+      # Create combined kubeconfig
+      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/captain kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
+      - rm ~/.kube/admiral ~/.kube/captain
 
   auth:
     desc: Authenticate with Terraform Cloud. Note":" This does NOT auth with AWS. AWS is done with environment variables
@@ -82,23 +98,9 @@ tasks:
   eks_bootstrap_argocd:
     desc: install argocd on admiral cluster
     cmds:
-      # Set Admiral Cluster kubeconfig
-      - rm -rf ~/.kube/
-      - aws eks update-kubeconfig --region us-west-2 --name test-nonprod-test-stage-test-name-cluster --profile admiral --role-arn arn:aws:iam::{{.ADMIRAL_ACCOUNT_ID}}:role/OrganizationAccountAccessRole
-      - kubectl config rename-context `kubectl config current-context` {{.TF_VAR_COMPANY_KEY}}-admiral
-      - mv ~/.kube/config ~/.kube/admiral
-
-      # Set Captain Cluster kubeconfig
-      - aws eks update-kubeconfig --region us-west-2 --name test-nonprod-test-stage-test-name-cluster --profile captain --role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole
-      - kubectl config rename-context `kubectl config current-context` {{.CAPTAIN_CLUSTER_NAME}}
-      - mv ~/.kube/config ~/.kube/captain
-
-      # Create combined kubeconfig
-      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/captain kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
-      - rm ~/.kube/admiral ~/.kube/captain
       
       # Deploy ArgoCD 
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-admiral
+      - task admiral
       - kubectl create namespace argocd || true
       - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.11/manifests/install.yaml
       - kubectl wait pods --all -n argocd --for condition=Ready --timeout=120s
@@ -114,16 +116,16 @@ tasks:
   eks_bootstrap_captain_cluster:
     desc: Using the ADMIRAL, install an argo app to bootstrap the captain cluster
     cmds:
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-admiral
+      - task admiral
       - kubectl apply -f ../shared/application-definition-for-captain-cluster.yaml -n argocd
 
   get_argocd_logins:
     desc: get logins for argocd
     cmds:
       - rm -rf credentials.txt
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-admiral
+      - task admiral
       - echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].hostname}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
-      - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
+      - task captain
       - echo 'Captain Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
 
   clean:
@@ -170,7 +172,7 @@ tasks:
   admiral:
     desc: Using the ADMIRAL context
     cmds:
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-admiral
+      - kubectl config use-context {{.ADMIRAL_CLUSTER_NAME}}
 
   captain:
     desc: Using the CAPTAIN context
