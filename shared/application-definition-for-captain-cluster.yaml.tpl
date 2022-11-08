@@ -10,7 +10,7 @@ spec:
   source:
     path: .
     repoURL: 'https://github.com/GlueOps/platform.git'
-    targetRevision: venkata
+    targetRevision: HEAD
     helm:
       parameters:
         - name: argo-cd.glueops.app_cluster_name
@@ -140,9 +140,9 @@ spec:
   project: default
   syncPolicy:
     retry:
-      limit: 2
+      limit: 15
       backoff:
-        duration: 5s
+        duration: 30s
         maxDuration: 3m0s
         factor: 2
     automated:
