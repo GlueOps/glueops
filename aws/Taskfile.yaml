@@ -30,6 +30,8 @@ env:
     sh: echo -n "{{.TF_VAR_COMPANY_KEY}}-admiral"
   TF_VAR_CAPTAIN_CLUSTER_NAME: "{{.CAPTAIN_CLUSTER_NAME}}"
   TF_VAR_VAULT_ADDR: "https://vault.{{.CAPTAIN_DOMAIN}}"
+  SLACK_WEBHOOK_URL:
+    sh: echo -n "$SLACK_WEBHOOK_URL"
   
 
 
@@ -178,3 +180,8 @@ tasks:
     desc: Using the CAPTAIN context
     cmds:
       - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
+
+  send_credentials_to_slack:
+    desc: Send ephemeral credentials to slack
+    cmds:
+      - curl -X POST --data-urlencode "payload={'channel'":" '#github-actions-tests', 'username'":" 'webhookbot', 'text'":" '`cat credentials.txt`', 'icon_emoji'":" ':github:'}" {{.SLACK_WEBHOOK_URL}}

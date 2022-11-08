@@ -1,3 +1,6 @@
+#Slack incoming webhook:
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+
 # AWS Credentials (from the Terraform Service User)
 export AWS_ACCESS_KEY_ID="<tf-service-user-credentials>"
 export AWS_SECRET_ACCESS_KEY="<tf-service-user-credentials>"
