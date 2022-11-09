@@ -11,7 +11,7 @@ tasks:
   cleanup:
     desc: Shared items that can be cleaned up
     cmds:
-      - terraform destroy --auto-approve -target=module.tfc || true
+      - terraform destroy --auto-approve -target=module.tfc -lock=false || true
       - rm -rf *terraform*
       - rm -rf .terraform*
       - rm -rf ~/.kube/
