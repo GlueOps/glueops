@@ -10,7 +10,7 @@ locals {
   org_id                   = var.GCP_ORGANIZATION_ID
   company_key              = var.COMPANY_KEY
   gcp_billing_account_name = "My Billing Account"
-  environments             = toset(["${var.UNIQUE_IDENTIFIER}-admiral", "captain-${var.UNIQUE_IDENTIFIER}-admiral"])
+  environments             = toset(["${var.UNIQUE_IDENTIFIER}-admiral", "${var.UNIQUE_IDENTIFIER}-captain"])
 
   apps_project_name = var.CAPTAIN_CLUSTER_NAME
 
@@ -101,7 +101,7 @@ module "gke" {
 
 
 module "svc_accounts" {
-  source = "git::https://github.com/GlueOps/terraform-gcp-captain-service-accounts.git?ref=v0.1.0"
+  source = "git::https://github.com/GlueOps/terraform-gcp-captain-service-accounts.git"
   svc_accounts_and_roles = {
     terraform-cloud-operator = toset(["roles/cloudsql.admin"])
     hashicorp-vault          = toset(["roles/cloudkms.cryptoKeyEncrypterDecrypter","roles/cloudkms.viewer"])
