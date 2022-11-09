@@ -1,0 +1,28 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Test AWS
+
+on: workflow_dispatch
+
+env:
+  DOCKER_IMAGE: "glueops/codespaces:v0.7.0"
+
+jobs:
+  DEV_migrate:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2 # Required to mount the Github Workspace to a volume 
+      - name: run steps
+        uses: addnab/docker-run-action@v3
+        with:
+          registry: docker.io
+          image: glueops/codespaces:v0.7.0
+          run: |
+              cd aws/
+              task cluster_up
+
