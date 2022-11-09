@@ -81,7 +81,7 @@ tasks:
       - terraform apply --auto-approve
       - terraform apply
 
-  eks_bootstrap_argocd:
+  bootstrap_admiral:
     desc: install argocd on admiral cluster
     cmds:
       # Deploy ArgoCD 

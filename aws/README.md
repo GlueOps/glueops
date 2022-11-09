@@ -1,42 +1,19 @@
 
-## Steps to bring up the environment:
+## Requirements:
+
+--todo after verifying in GCP.
 
 #### Notes:
 
-Before you begin make sure your Taskfile.yaml has the proper environment variables set:
-
-Notes:
-- Also, be sure you don't let your codespaces go idle. I recommend increasing your codespace timeout and running this all inside of tmux. Otherwise expect to monitor the gke_up for at least 15-25mins.
-
-#### set your environment
-
-- Run `task auth` to authenticate with terraform cloud
-- Copy `.env.tpl` to create an `.env` file with the correct secrets.
-- Run `source .env` to populate your environment with the newly created variables and secrets
-
-#### Bring up new clusters in eks:
-
-- Login to Terraform Cloud `terraform login`
+- Copy `.env.tpl` in `../shared/.env.tpl` and create: `../shared/.env` and set all the variables. Please ignore anything that isn't relevant to the cloud you are deploying on.
+- Source the `.env` file with `../shared/.env`
+- Run: `task auth` and login to each service. We recommend using a dedicated test/dev account for each service (ex. GCP, Terraform Cloud)
 - Run `task eks_up`
-
-#### create configs
-
-`task configs`
-
-
-#### Bootstrap admiral cluster:
-
-`task eks_bootstrap_argocd`
-
-#### Bootstrap captain cluster:
-
-`task eks_bootstrap_captain_cluster`
-
-#### Get logins for argocd deployments:
-`task get_argocd_logins`
-
-#### Cleanup:
-`task clean`
+- Run `task configs`
+- Run `task bootstrap_admiral`
+- Run `task shared:bootstrap_captain`
+- Run `task shared:send_credentials_to_slack`
+- Run `task clean`
 
 
 
