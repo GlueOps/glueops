@@ -56,14 +56,12 @@ tasks:
   gke_up:
     desc: Brings up GKE Cluster
     cmds:
-      - date >> run.txt
       - terraform init
       - terraform apply --auto-approve -target=module.organization_and_project_bootstrap
       - terraform apply --auto-approve -target=module.vpc 
       - terraform apply --auto-approve -target=module.gke
       - terraform apply --auto-approve
       - terraform apply
-      - date >> run.txt
 
   gke_bootstrap_argocd:
     desc: install argocd on admiral cluster

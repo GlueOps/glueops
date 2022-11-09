@@ -77,11 +77,9 @@ tasks:
   eks_up:
     desc: Deploy Admiral and Captain AWS EKS clusters
     cmds:
-      - date >> run.txt
       - terraform init
       - terraform apply --auto-approve
       - terraform apply
-      - date >> run.txt
 
   eks_bootstrap_argocd:
     desc: install argocd on admiral cluster
