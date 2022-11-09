@@ -74,7 +74,7 @@ tasks:
     cmds:
       - task shared:terraform_login
 
-  eks_up:
+  cluster_up:
     desc: Deploy Admiral and Captain AWS EKS clusters
     cmds:
       - terraform init

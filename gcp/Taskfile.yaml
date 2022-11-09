@@ -53,7 +53,7 @@ tasks:
       - task shared:captain_kubeconfig_and_flatten_all_kubeconfigs
 
 
-  gke_up:
+  cluster_up:
     desc: Brings up GKE Cluster
     cmds:
       - terraform init
