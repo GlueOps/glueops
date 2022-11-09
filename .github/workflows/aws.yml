@@ -10,7 +10,7 @@ on: workflow_dispatch
 env:
   DOCKER_IMAGE: "glueops/codespaces:v0.7.0"
   UNIQUE_IDENTIFIER: "v110920221"
-  CAPTAIN_DOMAIN: ${{ github.ref == 'refs/heads/🚀💎🙌🚀' && 'main.aws.glueops.rocks' || format('{0}{1}', github.ref_name.replace('/', '-').replace('\','-''), '.aws.glueops.rocks') }}
+  CAPTAIN_DOMAIN: ${{ github.ref == 'refs/heads/🚀💎🙌🚀' && 'main.aws.glueops.rocks' || format('{0}{1}', github.ref_name.replace('/', '-').replace('\','-'), '.aws.glueops.rocks') }}
 
 jobs:
   AWS:
