@@ -98,7 +98,7 @@ tasks:
   gke_bootstrap_argocd:
     desc: install argocd on admiral cluster
     cmds:
-      - task admiral
+      - task shared:admiral
       - kubectl create namespace argocd || true
       - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.11/manifests/install.yaml
       - kubectl wait pods --all -n argocd --for condition=Ready --timeout=120s
@@ -111,26 +111,17 @@ tasks:
     desc: get logins for argocd
     cmds:
       - rm -rf credentials.txt
-      - task admiral
+      - task shared:admiral
       - echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
-      - task captain
+      - task shared:captain
       - echo 'Captain Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
 
   gke_bootstrap_captain_cluster:
     desc: Using the ADMIRAL, install an argo app to bootstrap the captain cluster
     cmds:
-      - task admiral
+      - task shared:admiral
       - kubectl apply -f ../shared/application-definition-for-captain-cluster.yaml -n argocd
 
-  admiral:
-    desc: Using the ADMIRAL context
-    cmds:
-      - kubectl config use-context {{.ADMIRAL_CLUSTER_NAME}}
-
-  captain:
-    desc: Using the CAPTAIN context
-    cmds:
-      - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
 
   
 

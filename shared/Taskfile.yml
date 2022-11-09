@@ -18,4 +18,14 @@ tasks:
       - rm -rf ~/.aws/
 
 
+  admiral:
+    desc: Using the ADMIRAL context
+    cmds:
+      - kubectl config use-context {{.ADMIRAL_CLUSTER_NAME}}
+
+  captain:
+    desc: Using the CAPTAIN context
+    cmds:
+      - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
+
       
