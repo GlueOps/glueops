@@ -1,7 +1,7 @@
 variable "GCP_ORGANIZATION_ID" {}
 variable "COMPANY_KEY" {}
 variable "CAPTAIN_CLUSTER_NAME" {}
-variable "TEST_NUMBER" {}
+variable "UNIQUE_IDENTIFIER" {}
 variable "ENVIRONMENT_SPECIFIC_EMAIL_GROUP" {}
 
 
@@ -10,9 +10,9 @@ locals {
   org_id                   = var.GCP_ORGANIZATION_ID
   company_key              = var.COMPANY_KEY
   gcp_billing_account_name = "My Billing Account"
-  environments             = toset(["admiral-${var.TEST_NUMBER}", "captain-${var.TEST_NUMBER}"])
+  environments             = toset(["${var.UNIQUE_IDENTIFIER}-admiral", "captain-${var.UNIQUE_IDENTIFIER}-admiral"])
 
-  apps_project_name = "${var.COMPANY_KEY}-captain-${var.TEST_NUMBER}"
+  apps_project_name = var.CAPTAIN_CLUSTER_NAME
 
   admins = [
     "group:${var.ENVIRONMENT_SPECIFIC_EMAIL_GROUP}",

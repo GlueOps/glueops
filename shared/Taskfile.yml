@@ -6,3 +6,16 @@ tasks:
     cmds:
       - curl -X POST --data-urlencode "payload={'channel'":" '#github-actions-tests', 'username'":" 'webhookbot', 'text'":" '`cat credentials.txt`', 'icon_emoji'":" ':github:'}" {{.SLACK_WEBHOOK_URL}}
 
+
+  cleanup:
+    desc: Shared items that can be cleaned up
+    cmds:
+      - terraform destroy --auto-approve -target=module.tfc || true
+      - rm -rf *terraform*
+      - rm -rf .terraform*
+      - rm -rf ~/.kube/
+      - rm -rf credentials.txt
+      - rm -rf ~/.aws/
+
+
+      

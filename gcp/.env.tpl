@@ -6,7 +6,7 @@ export CUSTOMER_GITHUB_ORG_NAME="<customer-github-org-name>"
 export CUSTOMER_GITHUB_ORG_TEAM_NAME="<customer-github-org-team-name>"
 
 export COMPANY_KEY="<developer-name>"
-export CREATION_DATE=$(date '+%d%H%M')
+export UNIQUE_IDENTIFIER=$(date '+%d%H%M')
 
 #Note you need to add this as an edge SSL cert to cloudflare
 #Example: "us-central1.gcp.example.glueops.rocks"

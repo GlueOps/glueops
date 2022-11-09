@@ -1,6 +1,9 @@
 # https://taskfile.dev
 version: '3'
 
+includes:
+  shared: ../shared
+
 
 vars:
   GREETING: Hello, World!
@@ -9,8 +12,8 @@ env:
     sh: gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]' ##gcloud auth: https://stackoverflow.com/questions/53306131/difference-between-gcloud-auth-application-default-login-and-gcloud-auth-logi
   TF_VAR_COMPANY_KEY: 
     sh: echo -n $COMPANY_KEY
-  TF_VAR_TEST_NUMBER: 
-    sh: echo -n $CREATION_DATE
+  TF_VAR_UNIQUE_IDENTIFIER: 
+    sh: echo -n $UNIQUE_IDENTIFIER
   CAPTAIN_CLUSTER_NAME: 
     sh: echo -n $CAPTAIN_CLUSTER_NAME
   SVC_LB_PATCH:
@@ -31,6 +34,8 @@ env:
     sh: echo -n "$COMPANY_KEY-$CREATION_DATE-captain"
   TF_VAR_CAPTAIN_CLUSTER_NAME: "{{.CAPTAIN_CLUSTER_NAME}}"
   TF_VAR_VAULT_ADDR: "https://vault.{{.CAPTAIN_DOMAIN}}"
+  ADMIRAL_CLUSTER_NAME:
+    sh: echo -n "$COMPANY_KEY-$CREATION_DATE-captain"
 
 tasks:
   default:
@@ -54,6 +59,16 @@ tasks:
     desc: Generate configs
     cmds:
       - envsubst < ../shared/application-definition-for-captain-cluster.yaml.tpl > ../shared/application-definition-for-captain-cluster.yaml
+      - rm -rf ~/.kube/
+      - gcloud container clusters get-credentials admiral-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}}
+      - kubectl config rename-context `kubectl config current-context` {{.ADMIRAL_CLUSTER_NAME}}
+      - mv ~/.kube/config ~/.kube/admiral
+      - gcloud container clusters get-credentials captain-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}}
+      - kubectl config rename-context `kubectl config current-context` {{.CAPTAIN_CLUSTER_NAME}}
+      - mv ~/.kube/config ~/.kube/captain
+      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/captain kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
+      - rm ~/.kube/admiral ~/.kube/captain
+      - kubectl config use-context {{.ADMIRAL_CLUSTER_NAME}}
 
   gke_up:
     desc: Brings up GKE Cluster
@@ -74,29 +89,17 @@ tasks:
         sh: gcloud resource-manager folders list --organization=`gcloud organizations list --format=json | jq -r '.[0].name | split("/") | .[1]'` --filter="{{.TF_VAR_COMPANY_KEY}} Core" --format=json | jq -r '.[0].name | split("/") | .[1]' || true
     cmds:
       - terraform destroy --auto-approve -target=module.tfc || true
-      - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}} --quiet || true
+      - gcloud projects delete {{.CAPTAIN_CLUSTER_NAME}} --quiet || true
       - gcloud projects delete {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} --quiet || true
-      - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}} || true
+      - gcloud alpha billing projects unlink {{.CAPTAIN_CLUSTER_NAME}} || true
       - gcloud alpha billing projects unlink {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}} || true
       - gcloud resource-manager folders update {{.FOLDER_ID}} --display-name=`date +%s`"-DELETED" || true
-      - rm -rf *terraform*
-      - rm -rf .terraform*
-      - rm -rf ~/.kube/
-      - rm -rf credentials.txt
+      - task shared:cleanup
 
   gke_bootstrap_argocd:
     desc: install argocd on admiral cluster
     cmds:
-      - rm -rf ~/.kube/
-      - gcloud container clusters get-credentials admiral-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-admiral-{{.TF_VAR_TEST_NUMBER}}
-      - kubectl config rename-context `kubectl config current-context` {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
-      - mv ~/.kube/config ~/.kube/admiral
-      - gcloud container clusters get-credentials captain-{{.TF_VAR_TEST_NUMBER}}-gke --zone us-central1-a --project {{.TF_VAR_COMPANY_KEY}}-captain-{{.TF_VAR_TEST_NUMBER}}
-      - kubectl config rename-context `kubectl config current-context` {{.CAPTAIN_CLUSTER_NAME}}
-      - mv ~/.kube/config ~/.kube/captain
-      - KUBECONFIG={{.HOME}}/.kube/admiral:{{.HOME}}/.kube/captain kubectl config view --flatten > /tmp/config && mv /tmp/config ~/.kube/config
-      - rm ~/.kube/admiral ~/.kube/captain
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+      - task admiral
       - kubectl create namespace argocd || true
       - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.11/manifests/install.yaml
       - kubectl wait pods --all -n argocd --for condition=Ready --timeout=120s
@@ -109,26 +112,26 @@ tasks:
     desc: get logins for argocd
     cmds:
       - rm -rf credentials.txt
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+      - task admiral
       - echo 'Admiral Server:' 'https://'$(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].ip}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
-      - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
+      - task captain
       - echo 'Captain Server:' 'https://'$(kubectl get ing -n glueops-core -o=jsonpath="{$.items[0].spec.rules[0].host}") >> credentials.txt && echo 'User:' 'admin' >> credentials.txt  && echo 'Password:' $(kubectl -n glueops-core get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) >> credentials.txt
 
   gke_bootstrap_captain_cluster:
     desc: Using the ADMIRAL, install an argo app to bootstrap the captain cluster
     cmds:
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+      - task admiral
       - kubectl apply -f ../shared/application-definition-for-captain-cluster.yaml -n argocd
 
   admiral:
     desc: Using the ADMIRAL context
     cmds:
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-admiral
+      - kubectl config use-context {{.ADMIRAL_CLUSTER_NAME}}
 
   captain:
     desc: Using the CAPTAIN context
     cmds:
-      - kubectl config use-context {{.TF_VAR_COMPANY_KEY}}-{{.TF_VAR_TEST_NUMBER}}-captain
+      - kubectl config use-context {{.CAPTAIN_CLUSTER_NAME}}
 
   
 
