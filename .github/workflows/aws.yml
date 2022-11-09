@@ -46,7 +46,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           registry: docker.io
-          image: {{ env.DOCKER_IMAGE }}
+          image: ${{ env.DOCKER_IMAGE }}
           options: -v ${{ github.workspace }}:/repo
           run: |
               cd repo
@@ -57,7 +57,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           registry: docker.io
-          image: {{ env.DOCKER_IMAGE }}
+          image: ${{ env.DOCKER_IMAGE }}
           options: -v ${{ github.workspace }}:/repo
           run: |
               echo "testing"
@@ -68,7 +68,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           registry: docker.io
-          image: {{ env.DOCKER_IMAGE }}
+          image: ${{ env.DOCKER_IMAGE }}
           options: -v ${{ github.workspace }}:/repo
           run: |
               ls -al
