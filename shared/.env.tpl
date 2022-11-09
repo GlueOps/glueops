@@ -1,12 +1,23 @@
-# Note you should only source this .env file once as the CREATION_DATE will change! Alternatively, you can hardcode it.
+#### ONLY FOR AWS:
+# AWS Credentials (from the Terraform Service User)
+export AWS_ACCESS_KEY_ID="<tf-service-user-credentials>"
+export AWS_SECRET_ACCESS_KEY="<tf-service-user-credentials>"
+export AWS_REGION="<tf-service-user-region>"
+
+#### END AWS
+
+
+#Slack incoming webhook:
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+
 
 # Please check the team wiki page for some of these values.
 export TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP="<ask-org-admins-for-an-email-group>"
 export CUSTOMER_GITHUB_ORG_NAME="<customer-github-org-name>"
 export CUSTOMER_GITHUB_ORG_TEAM_NAME="<customer-github-org-team-name>"
-
-export COMPANY_KEY="<developer-name>"
 export UNIQUE_IDENTIFIER=$(date '+%d%H%M')
+export COMPANY_KEY="<developer-name>"
+
 
 #Note you need to add this as an edge SSL cert to cloudflare
 #Example: "us-central1.gcp.example.glueops.rocks"
