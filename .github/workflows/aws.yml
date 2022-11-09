@@ -9,36 +9,28 @@ on: workflow_dispatch
 
 env:
   DOCKER_IMAGE: "glueops/codespaces:v0.7.0"
-  # UNIQUE_IDENTIFIER: ${{ github.sha }} | cut -c1-4
-  # AWS_REGION: "us-west-2"
-  # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  # TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP: "${{ secrets.TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP }}"
-  # CUSTOMER_GITHUB_ORG_NAME: "glueops-rocks"
-  # CUSTOMER_GITHUB_ORG_TEAM_NAME: "developers"
-  # COMPANY_KEY:  "gha"
-  # CAPTAIN_DOMAIN: "main.aws.glueops.rocks"
-  # CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  # ZEROSSL_EAB_KID: ${{ secrets.ZEROSSL_EAB_KID }}
-  # ZEROSSL_EAB_HMAC_KEY: ${{ secrets.ZEROSSL_EAB_HMAC_KEY }}
-  # GRAFANA_GITHUB_CLIENT_ID: ${{ secrets.GRAFANA_GITHUB_CLIENT_ID }}
-  # GRAFANA_GITHUB_CLIENT_SECRET: ${{ secrets.GRAFANA_GITHUB_CLIENT_SECRET }}
-  # ARGO_CD_GITHUB_CLIENT_ID: ${{ secrets.ARGO_CD_GITHUB_CLIENT_ID }}
-  # ARGO_CD_GITHUB_CLIENT_SECRET: ${{ secrets.ARGO_CD_GITHUB_CLIENT_SECRET }}
-
-
-
-
-
-
-
-
+  UNIQUE_IDENTIFIER: ${{ github.sha }} | cut -c1-4
+  AWS_REGION: "us-west-2"
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP: "${{ secrets.TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP }}"
+  CUSTOMER_GITHUB_ORG_NAME: "glueops-rocks" #development org to use for testing
+  CUSTOMER_GITHUB_ORG_TEAM_NAME: "developers"
+  COMPANY_KEY:  "gha"
+  CAPTAIN_DOMAIN: "main.aws.glueops.rocks"
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  ZEROSSL_EAB_KID: ${{ secrets.ZEROSSL_EAB_KID }}
+  ZEROSSL_EAB_HMAC_KEY: ${{ secrets.ZEROSSL_EAB_HMAC_KEY }}
+  GRAFANA_GITHUB_CLIENT_ID: ${{ secrets.MAIN_BRANCH_AWS_GRAFANA_GITHUB_CLIENT_ID }}
+  GRAFANA_GITHUB_CLIENT_SECRET: ${{ secrets.MAIN_BRANCH_AWS_GRAFANA_GITHUB_CLIENT_SECRET }}
+  ARGO_CD_GITHUB_CLIENT_ID: ${{ secrets.MAIN_BRANCH_AWS_ARGO_CD_GITHUB_CLIENT_ID }}
+  ARGO_CD_GITHUB_CLIENT_SECRET: ${{ secrets.MAIN_BRANCH_AWS_ARGO_CD_GITHUB_CLIENT_SECRET }}
 
 jobs:
   AWS:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 180
     steps:
       - name: Checkout 
         uses: actions/checkout@v2 # Required to mount the Github Workspace to a volume 
@@ -52,18 +44,7 @@ jobs:
               cd repo
               cd aws/
               task cluster_up
-      - name: Send Slack Message success
-        if: ${{ success() }}
-        uses: addnab/docker-run-action@v3
-        with:
-          registry: docker.io
-          image: ${{ env.DOCKER_IMAGE }}
-          options: -v ${{ github.workspace }}:/repo
-          run: |
-              echo "testing"
-              ls -al
-              echo "testing"
-      - name: Send Slack Message
+      - name: Cleanup
         if: ${{ failure() }}
         uses: addnab/docker-run-action@v3
         with:
@@ -71,4 +52,5 @@ jobs:
           image: ${{ env.DOCKER_IMAGE }}
           options: -v ${{ github.workspace }}:/repo
           run: |
-              ls -al
+              cd repo
+              task clean
