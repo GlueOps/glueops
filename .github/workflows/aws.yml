@@ -11,7 +11,7 @@ env:
   DOCKER_IMAGE: "glueops/codespaces:v0.7.0"
 
 jobs:
-  DEV_migrate:
+  AWS:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -22,7 +22,9 @@ jobs:
         with:
           registry: docker.io
           image: glueops/codespaces:v0.7.0
+          options: -v ${{ github.workspace }}:/repo
           run: |
+              cd repo
               cd aws/
               task cluster_up
 
