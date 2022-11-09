@@ -9,7 +9,7 @@ on: workflow_dispatch
 
 env:
   DOCKER_IMAGE: "glueops/codespaces:v0.7.0"
-  UNIQUE_IDENTIFIER: ${{ github.sha }} | cut -c1-4 
+  UNIQUE_IDENTIFIER: "v110920221"
   
 
 
