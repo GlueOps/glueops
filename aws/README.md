@@ -14,7 +14,4 @@
 - Run `task shared:bootstrap_captain`
 - Run `task shared:send_credentials_to_slack`
 - Run `task clean`
-
-
-
-
+- 
