@@ -57,7 +57,7 @@ tasks:
         sh: echo -n "https://kms.$AWS_REGION.amazonaws.com" | base64
     cmds:
       # Create argocd app config
-      - shared:generate_app_configs
+      - task shared:generate_app_configs
       - rm -rf ~/.aws/ && mkdir ~/.aws
       - envsubst < ./aws_profile_config.tpl > ~/.aws/config
       
@@ -67,7 +67,7 @@ tasks:
 
       # Set Captain Cluster kubeconfig
       - aws eks update-kubeconfig --region us-west-2 --name test-nonprod-test-stage-test-name-cluster --profile captain --role-arn arn:aws:iam::{{.CAPTAIN_ACCOUNT_ID}}:role/OrganizationAccountAccessRole
-      - shared:captain_kubeconfig_and_flatten_all_kubeconfigs
+      - task shared:captain_kubeconfig_and_flatten_all_kubeconfigs
 
   auth:
     desc: Authenticate with Terraform Cloud. Note":" This does NOT auth with AWS. AWS is done with environment variables
@@ -87,11 +87,11 @@ tasks:
     desc: install argocd on admiral cluster
     cmds:
       # Deploy ArgoCD 
-      - shared:deploy_argocd
+      - task shared:deploy_argocd
       # Log in to ArgoCD on Admiral Cluster
       - until argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath="{.status.loadBalancer.ingress[0].hostname}") --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo) --grpc-web --insecure; do echo "" ; done
       # Add Captain cluster to Admiral Cluster (from login above) from captain cluster context
-      - shared:post_argocd_deploy
+      - task shared:post_argocd_deploy
 
   clean:
     desc: Nuke all AWS resources and delete temporary configuration files
