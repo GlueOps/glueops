@@ -1,3 +1,6 @@
+[![Test GCP](https://github.com/GlueOps/glueops/actions/workflows/gcp.yml/badge.svg)](https://github.com/GlueOps/glueops/actions/workflows/gcp.yml)
+[![Test AWS](https://github.com/GlueOps/glueops/actions/workflows/aws.yml/badge.svg?branch=%F0%9F%9A%80%F0%9F%92%8E%F0%9F%99%8C%F0%9F%9A%80)](https://github.com/GlueOps/glueops/actions/workflows/aws.yml)
+
 
 ## Requirements:
 
