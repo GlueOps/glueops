@@ -1,0 +1,54 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Test AWS
+
+on: workflow_dispatch
+
+env:
+  DOCKER_IMAGE: "glueops/codespaces:v0.7.0"
+  UNIQUE_IDENTIFIER: "v11202"
+  CAPTAIN_DOMAIN: "main.gcp.glueops.rocks"
+
+jobs:
+  AWS:
+    environment: aws
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2 # Required to mount the Github Workspace to a volume 
+      - name: Pre-Cleanup
+        if: ${{ always() }}
+        uses: addnab/docker-run-action@v3
+        with:
+          registry: docker.io
+          image: ${{ env.DOCKER_IMAGE }}
+          options: -v ${{ github.workspace }}:/repo -e TFE_TOKEN=${{ secrets.TFE_TOKEN }} -e UNIQUE_IDENTIFIER=${{ env.UNIQUE_IDENTIFIER}} -e GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }} -e SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }} -e TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP=${{ secrets.TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP }} -e CUSTOMER_GITHUB_ORG_NAME=glueops-rocks -e CUSTOMER_GITHUB_ORG_TEAM_NAME=developers -e COMPANY_KEY=gha -e CAPTAIN_DOMAIN=${{ env.CAPTAIN_DOMAIN }} -e CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }} -e ZEROSSL_EAB_KID=${{ secrets.ZEROSSL_EAB_KID }} -e ZEROSSL_EAB_HMAC_KEY=${{ secrets.ZEROSSL_EAB_HMAC_KEY }} -e GRAFANA_GITHUB_CLIENT_ID=${{ secrets.MAIN_BRANCH_AWS_GRAFANA_GITHUB_CLIENT_ID }} -e GRAFANA_GITHUB_CLIENT_SECRET=${{ secrets.MAIN_BRANCH_AWS_GRAFANA_GITHUB_CLIENT_SECRET }} -e ARGO_CD_GITHUB_CLIENT_ID=${{ secrets.MAIN_BRANCH_AWS_ARGO_CD_GITHUB_CLIENT_ID }} -e ARGO_CD_GITHUB_CLIENT_SECRET=${{ secrets.MAIN_BRANCH_AWS_ARGO_CD_GITHUB_CLIENT_SECRET }}
+          run: |
+              cd repo
+              cd gcp/
+              task clean
+      - name: run steps
+        uses: addnab/docker-run-action@v3
+        with:
+          registry: docker.io
+          image: ${{ env.DOCKER_IMAGE }}
+          options: -v ${{ github.workspace }}:/repo -e TFE_TOKEN=${{ secrets.TFE_TOKEN }} -e UNIQUE_IDENTIFIER=${{ env.UNIQUE_IDENTIFIER}} -e GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }} -e SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }} -e TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP=${{ secrets.TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP }} -e CUSTOMER_GITHUB_ORG_NAME=glueops-rocks -e CUSTOMER_GITHUB_ORG_TEAM_NAME=developers -e COMPANY_KEY=gha -e CAPTAIN_DOMAIN=${{ env.CAPTAIN_DOMAIN }} -e CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }} -e ZEROSSL_EAB_KID=${{ secrets.ZEROSSL_EAB_KID }} -e ZEROSSL_EAB_HMAC_KEY=${{ secrets.ZEROSSL_EAB_HMAC_KEY }} -e GRAFANA_GITHUB_CLIENT_ID=${{ secrets.MAIN_BRANCH_AWS_GRAFANA_GITHUB_CLIENT_ID }} -e GRAFANA_GITHUB_CLIENT_SECRET=${{ secrets.MAIN_BRANCH_AWS_GRAFANA_GITHUB_CLIENT_SECRET }} -e ARGO_CD_GITHUB_CLIENT_ID=${{ secrets.MAIN_BRANCH_AWS_ARGO_CD_GITHUB_CLIENT_ID }} -e ARGO_CD_GITHUB_CLIENT_SECRET=${{ secrets.MAIN_BRANCH_AWS_ARGO_CD_GITHUB_CLIENT_SECRET }}
+          run: |
+              cd repo
+              cd gcp/
+              task cluster_up
+      - name: Post-Cleanup
+        if: ${{ always() }}
+        uses: addnab/docker-run-action@v3
+        with:
+          registry: docker.io
+          image: ${{ env.DOCKER_IMAGE }}
+          options: -v ${{ github.workspace }}:/repo -e TFE_TOKEN=${{ secrets.TFE_TOKEN }} -e UNIQUE_IDENTIFIER=${{ env.UNIQUE_IDENTIFIER}} -e GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }} -e SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }} -e TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP=${{ secrets.TF_VAR_ENVIRONMENT_SPECIFIC_EMAIL_GROUP }} -e CUSTOMER_GITHUB_ORG_NAME=glueops-rocks -e CUSTOMER_GITHUB_ORG_TEAM_NAME=developers -e COMPANY_KEY=gha -e CAPTAIN_DOMAIN=${{ env.CAPTAIN_DOMAIN }} -e CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }} -e ZEROSSL_EAB_KID=${{ secrets.ZEROSSL_EAB_KID }} -e ZEROSSL_EAB_HMAC_KEY=${{ secrets.ZEROSSL_EAB_HMAC_KEY }} -e GRAFANA_GITHUB_CLIENT_ID=${{ secrets.MAIN_BRANCH_AWS_GRAFANA_GITHUB_CLIENT_ID }} -e GRAFANA_GITHUB_CLIENT_SECRET=${{ secrets.MAIN_BRANCH_AWS_GRAFANA_GITHUB_CLIENT_SECRET }} -e ARGO_CD_GITHUB_CLIENT_ID=${{ secrets.MAIN_BRANCH_AWS_ARGO_CD_GITHUB_CLIENT_ID }} -e ARGO_CD_GITHUB_CLIENT_SECRET=${{ secrets.MAIN_BRANCH_AWS_ARGO_CD_GITHUB_CLIENT_SECRET }}
+          run: |
+              cd repo
+              cd gcp/
+              task clean
