@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Test AWS
+name: Test GCP
 
 on: workflow_dispatch
 
@@ -13,7 +13,7 @@ env:
   CAPTAIN_DOMAIN: "main.gcp.glueops.rocks"
 
 jobs:
-  AWS:
+  GCP:
     environment: gcp
     runs-on: ubuntu-22.04
     timeout-minutes: 180
