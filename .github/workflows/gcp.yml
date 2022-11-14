@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 180
     steps:
       - name: Get current date
-        id: date
+        id: UNIQUE_IDENTIFIER
         run: |
           echo "{UNIQUE_IDENTIFIER}=v{$(date +'%m%d%H%M')}" >> $GITHUB_STATE
       - name: Checkout 
