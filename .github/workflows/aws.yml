@@ -3,13 +3,12 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Test AWS
+name: AWS
 
 on: workflow_dispatch
 
 env:
   DOCKER_IMAGE: "glueops/codespaces:v0.7.0"
-  UNIQUE_IDENTIFIER: "v110920222"
   CAPTAIN_DOMAIN: "main.aws.glueops.rocks" #${{ github.ref == 'refs/heads/🚀💎🙌🚀' && 'main.aws.glueops.rocks' || format('{0}{1}', github.ref_name.replace('/', '-'), '.aws.glueops.rocks') }}
 
 jobs:
@@ -18,6 +17,10 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     steps:
+      - name: Set a UNIQUE_IDENTIFIER
+        id: UNIQUE_IDENTIFIER
+        run: |
+          echo "UNIQUE_IDENTIFIER=v$(date +'%m%d%H%M')" >> $GITHUB_ENV
       - name: Checkout 
         uses: actions/checkout@v2 # Required to mount the Github Workspace to a volume 
       - name: Pre-Cleanup
