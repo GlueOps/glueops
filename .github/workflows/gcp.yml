@@ -9,7 +9,6 @@ on: workflow_dispatch
 
 env:
   DOCKER_IMAGE: "glueops/codespaces:v0.7.0"
-  UNIQUE_IDENTIFIER: "v11202"
   CAPTAIN_DOMAIN: "main.gcp.glueops.rocks"
   GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
@@ -19,6 +18,10 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     steps:
+      - name: Get current date
+        id: date
+        run: |
+          echo "{UNIQUE_IDENTIFIER}=v{$(date +'%m%d%H%M')}" >> $GITHUB_STATE
       - name: Checkout 
         uses: actions/checkout@v2 # Required to mount the Github Workspace to a volume 
       - name: run steps
