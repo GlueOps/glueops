@@ -21,7 +21,7 @@ jobs:
       - name: Get current date
         id: UNIQUE_IDENTIFIER
         run: |
-          echo "{UNIQUE_IDENTIFIER}=v{$(date +'%m%d%H%M')}" >> $GITHUB_STATE
+          echo "UNIQUE_IDENTIFIER}=v$(date +'%m%d%H%M')" >> $GITHUB_ENV
       - name: Checkout 
         uses: actions/checkout@v2 # Required to mount the Github Workspace to a volume 
       - name: run steps
