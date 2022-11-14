@@ -43,7 +43,7 @@ jobs:
           run: |
               cd repo
               cd aws/
-              task cluster_up
+              ../gha.sh
       - name: Post-Cleanup
         if: ${{ always() }}
         uses: addnab/docker-run-action@v3
