@@ -2,7 +2,7 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.233.0/containers/ubuntu
 {
 	"name": "Ubuntu",
-	"image": "glueops/codespaces:v0.15.0",
+	"image": "glueops/codespaces:v0.16.1",
 	"runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined", "--privileged", "--init" ],
 	"mounts": [ "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind" ],
 	"overrideCommand": false,
