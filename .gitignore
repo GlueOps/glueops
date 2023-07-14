@@ -3,3 +3,4 @@
 !.devcontainer/*
 !.devcontainer/*/*
 !.gitignore
+!!README.md
