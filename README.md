@@ -10,4 +10,8 @@ What sets GitHub Codespaces apart is its robust privacy protections. Even organi
 
 ## 🔄 Using this Codespace with Other Repositories
 
-To leverage the capabilities of this codespace with all repositories you have access to, just run: `yolo` in your terminal.
+To leverage the capabilities of this codespace with all repositories you have access to, just run the following in your terminal: 
+
+```bash
+yolo
+```
