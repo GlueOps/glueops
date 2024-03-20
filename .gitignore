@@ -4,3 +4,4 @@
 !.devcontainer/*/*
 !.gitignore
 !!README.md
+!!renovate.json
